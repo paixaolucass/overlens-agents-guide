@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@overlens/legacy-components": "^2.2.0",
+    "@overlens/legacy-foundations": "^2.2.0",
+    "@overlens/legacy-icons": "^2.2.0"
+  }
+}

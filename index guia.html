@@ -1,0 +1,2401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overlens · Guia de Criação de Agentes de IA</title>
+  <meta name="description" content="Um guia completo para criar agentes de IA do zero. Da teoria ao workflow funcionando." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Outfit:wght@100..900&display=swap" rel="stylesheet" />
+  <style>
+    /* ─────────────────────────────────────────────
+       OVERLENS DESIGN TOKENS — @overlens/legacy-foundations
+       Valores hex reais exportados por colorPrimitives
+       ───────────────────────────────────────────── */
+    :root {
+      /* Escala neutral (neutral: colorPrimitives.neutral) */
+      --neutral-black: #000000;
+      --neutral-950:   #101010;
+      --neutral-900:   #202020;
+      --neutral-800:   #303030;
+      --neutral-700:   #404040;
+      --neutral-600:   #5C5C5C;
+      --neutral-500:   #A4A4A4;
+      --neutral-400:   #BCBCBC;
+      --neutral-300:   #D4D4D4;
+      --neutral-200:   #E7E7E7;
+      --neutral-100:   #F2F2F2;
+      --neutral-white: #FFFFFF;
+
+      /* Paleta brand (colorPrimitives.brand) — hex exato do pacote */
+      --brand-atmos:  #77C5D5;  /* teal/azul céu          */
+      --brand-kobold: #006298;  /* azul naval profundo     — guide-heavy */
+      --brand-bleu:   #5691A1;  /* azul médio acinzentado  */
+      --brand-midori: #3E695C;  /* verde floresta          — success-heavy */
+      --brand-sahara: #D6A461;  /* dourado/areia           — warning */
+      --brand-boreal: #8B355F;  /* magenta/vinho           */
+      --brand-cotta:  #872526;  /* vermelho escuro         — error-heavy */
+      --brand-antar:  #BFE3ED;  /* azul pálido             — guide-soft */
+      --brand-azzay:  #79876D;  /* oliva                   */
+      --brand-cloro:  #E2E99C;  /* lima pálido             — success-soft */
+      --brand-arena:  #FAEDBC;  /* creme quente            */
+      --brand-carota: #F87C56;  /* coral/laranja           — chart-4 */
+      --brand-khewra: #DC625E;  /* terracota               */
+      --brand-nubia:  #FBDD7A;  /* amarelo quente          — warning-soft / chart-3 */
+      --brand-calla:  #F4C3CC;  /* rosa bebê               — error-soft / chart-5 */
+
+      /* Tokens semânticos — dark theme (colorSemantics) */
+      --background:       var(--neutral-black);      /* #000000 */
+      --foreground:       var(--neutral-100);        /* #F2F2F2 */
+      --card:             var(--neutral-900);        /* #202020 */
+      --card-foreground:  var(--neutral-100);        /* #F2F2F2 */
+      --muted:            var(--neutral-800);        /* #303030 */
+      --muted-foreground: var(--neutral-500);        /* #A4A4A4 */
+      --primary:          var(--neutral-white);      /* #FFFFFF */
+      --primary-fg:       var(--neutral-950);        /* #101010 */
+      --border:           rgba(255, 255, 255, 0.10);
+      --border-hover:     rgba(255, 255, 255, 0.18);
+      --ring:             var(--neutral-600);        /* #5C5C5C */
+
+      /* Semântica de acento (colorSemantics — guide, info, chart…) */
+      --guide-heavy:    var(--brand-kobold);   /* #006298 — cor guia principal */
+      --guide-soft:     var(--brand-antar);    /* #BFE3ED */
+      --info:           var(--brand-atmos);    /* #77C5D5 */
+      --success-heavy:  var(--brand-midori);   /* #3E695C */
+      --success-soft:   var(--brand-cloro);    /* #E2E99C */
+      --warning:        var(--brand-sahara);   /* #D6A461 */
+      --warning-soft:   var(--brand-nubia);    /* #FBDD7A */
+      --error-heavy:    var(--brand-cotta);    /* #872526 */
+      --error-soft:     var(--brand-calla);    /* #F4C3CC */
+
+      /* Cor principal: branco e preto */
+      --accent-primary:   var(--neutral-white);  /* #FFFFFF — primário */
+      --accent-on-primary: var(--neutral-black); /* #000000 — texto sobre primário */
+
+      /* Suporte — brand colors como acento secundário */
+      --accent-soft:      var(--guide-soft);     /* antar  #BFE3ED */
+      --accent-lime:      var(--success-soft);   /* cloro  #E2E99C */
+      --accent-coral:     var(--brand-carota);   /* carota #F87C56 */
+      --accent-yellow:    var(--warning-soft);   /* nubia  #FBDD7A */
+      --accent-teal:      var(--info);           /* atmos  #77C5D5 */
+
+      /* Tipografia (fontFamilies + typographySemantics) */
+      --font-outfit:  "Outfit", ui-sans-serif, system-ui, sans-serif;
+      --font-heading: var(--font-outfit);
+      --font-body:    "Inter",  ui-sans-serif, system-ui, sans-serif;
+      --font-mono:    "JetBrains Mono", ui-monospace, monospace;
+
+      /* Raio (radius tokens do pacote — px exato) */
+      --radius-min: 4px;
+      --radius-xxs: 6px;
+      --radius-xs:  8px;
+      --radius-sm:  12px;
+      --radius-md:  16px;
+      --radius-lg:  24px;
+      --radius-xl:  32px;
+      --radius-xxl: 48px;
+      --radius-max: 100%;
+
+      /* Sombras (shadow tokens do pacote) */
+      --shadow-sm: 0 0 16px 0 rgba(0,0,0,.20);
+      --shadow-md: 0 4px 16px 0 rgba(0,0,0,.20);
+      --shadow-lg: 0 8px 16px 0 rgba(0,0,0,.20);
+
+      /* Espaçamento (px do pacote → rem para acessibilidade) */
+      --sp-1: .25rem;  --sp-2: .5rem;   --sp-3: .75rem;  --sp-4: 1rem;
+      --sp-5: 1.25rem; --sp-6: 1.5rem;  --sp-8: 2rem;    --sp-10: 2.5rem;
+      --sp-12: 3rem;   --sp-16: 4rem;   --sp-20: 5rem;   --sp-24: 6rem;
+      --sp-32: 8rem;
+
+      /* Container */
+      --max-w: 72rem;
+      --px: clamp(1rem, 4vw, 3rem);
+
+      /* Transição */
+      --ease: cubic-bezier(.4,0,.2,1);
+      --dur: .22s;
+    }
+
+    /* ─────────────────────────────────────────────
+       RESET
+       ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      background: var(--background);
+      color: var(--foreground);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font: inherit; color: inherit; }
+    ul, ol { list-style: none; }
+
+    /* ─────────────────────────────────────────────
+       LAYOUT
+       ───────────────────────────────────────────── */
+    .wrap  { width: 100%; max-width: var(--max-w); margin-inline: auto; padding-inline: var(--px); }
+    .sec   { padding-block: clamp(var(--sp-16), 8vw, var(--sp-24)); }
+    .sec--alt { background: var(--background); }
+
+    /* ─────────────────────────────────────────────
+       TIPOGRAFIA
+       ───────────────────────────────────────────── */
+    .eyebrow {
+      font-family: var(--font-outfit);
+      font-size: .6875rem; font-weight: 600;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--muted-foreground);
+    }
+    .eyebrow--accent { color: var(--neutral-400); }
+
+    h1,h2,h3,h4 { font-family: var(--font-heading); line-height: 1.08; letter-spacing: -.03em; }
+
+    /* Outfit SEMPRE maiúscula — regra global */
+    .t-xl  { font-size: clamp(2.75rem,7.5vw,5.5rem); font-weight: 400; text-transform: uppercase; letter-spacing: .02em; }
+    .t-lg  { font-size: clamp(1.875rem,5vw,3rem);    font-weight: 500; text-transform: uppercase; letter-spacing: .05em; line-height: 1.1; }
+    .t-md  { font-size: clamp(1.25rem, 3vw,1.875rem); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
+    .t-sm  { font-size: clamp(1rem,   2vw, 1.25rem);  font-weight: 500; text-transform: uppercase; letter-spacing: .03em; }
+    .t-xs  { font-size: .9375rem; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+
+    .body-lg { font-size: clamp(1rem,1.5vw,1.125rem); line-height: 1.75; color: var(--muted-foreground); }
+    .body-sm { font-size: .875rem; line-height: 1.65; color: var(--muted-foreground); }
+    .body-xs { font-size: .75rem;  line-height: 1.6;  color: var(--muted-foreground); }
+
+    .text-accent   { color: var(--accent-primary); }
+    .text-lime     { color: var(--brand-cloro); }
+    .text-orange   { color: var(--brand-carota); }
+    .text-amber    { color: var(--brand-nubia); }
+    .text-sky      { color: var(--brand-atmos); }
+    .text-muted    { color: var(--muted-foreground); }
+
+    /* ─────────────────────────────────────────────
+       BOTÕES
+       ───────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-3) var(--sp-6);
+      border-radius: 999px;
+      font-family: var(--font-outfit); font-size: .8125rem; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase; white-space: nowrap;
+      transition: all var(--dur) var(--ease);
+    }
+    .btn--solid {
+      background: var(--neutral-white); color: var(--neutral-black);
+    }
+    .btn--solid:hover { background: var(--neutral-200); transform: translateY(-1px); }
+
+    .btn--ghost {
+      background: transparent; color: var(--foreground);
+      border: 1px solid rgba(255,255,255,.18);
+    }
+    .btn--ghost:hover { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.30); }
+
+    .btn--kobold {
+      background: var(--brand-kobold); color: var(--neutral-100);
+      padding: var(--sp-4) var(--sp-8); font-size: 1rem; font-weight: 700;
+    }
+    .btn--kobold:hover {
+      background: #1A7AB5; transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0,98,152,.35);
+    }
+    .btn--kobold-lg {
+      padding: var(--sp-5) var(--sp-10); font-size: 1.125rem;
+      border-radius: 999px;
+    }
+
+    /* ─────────────────────────────────────────────
+       CARDS
+       ───────────────────────────────────────────── */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: var(--sp-6);
+      transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+    }
+    .card:hover { border-color: var(--border-hover); }
+
+    .card--kobold { border-top: 2px solid var(--brand-kobold); }
+    .card--lime   { border-top: 2px solid var(--brand-cloro); }
+    .card--orange { border-top: 2px solid var(--brand-carota); }
+    .card--amber  { border-top: 2px solid var(--brand-nubia); }
+
+    /* ─────────────────────────────────────────────
+       BADGE / TAG
+       ───────────────────────────────────────────── */
+    .badge {
+      display: inline-flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-1) var(--sp-3);
+      background: rgba(255,255,255,.05); border: 1px solid var(--border);
+      border-radius: var(--radius-xxs);
+      font-family: var(--font-outfit);
+      font-size: .6875rem; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--muted-foreground);
+    }
+    .badge--accent {
+      background: rgba(0,98,152,.12);
+      border-color: rgba(0,98,152,.32);
+      color: var(--brand-antar);
+    }
+    .badge--lime {
+      background: rgba(226,233,156,.10);
+      border-color: rgba(226,233,156,.28);
+      color: var(--brand-cloro);
+    }
+    .tag {
+      display: inline-block; padding: var(--sp-1) var(--sp-3);
+      background: rgba(255,255,255,.05); border: 1px solid var(--border);
+      border-radius: var(--radius-xxs);
+      font-family: var(--font-outfit);
+      font-size: .6875rem; font-weight: 500; color: var(--muted-foreground);
+    }
+
+    /* ─────────────────────────────────────────────
+       DIVISOR
+       ───────────────────────────────────────────── */
+    .hr { width: 100%; height: 1px; background: var(--border); margin-block: var(--sp-8); }
+
+    /* ─────────────────────────────────────────────
+       NAV
+       ───────────────────────────────────────────── */
+    .nav {
+      position: fixed; inset: 0 0 auto; z-index: 100;
+      border-bottom: 1px solid transparent;
+      transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+    }
+    .nav.scrolled {
+      background: rgba(0,0,0,.88); backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px); border-color: var(--border);
+    }
+    .nav__inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-block: var(--sp-4);
+    }
+    .nav__logo {
+      display: flex; align-items: center;
+    }
+    .nav__logo svg { height: 1.5rem; width: auto; display: block; }
+
+    /* ─────────────────────────────────────────────
+       NAV LINKS
+       ───────────────────────────────────────────── */
+    .nav__links {
+      display: flex; align-items: center; gap: var(--sp-1);
+    }
+    .nav__link {
+      font-family: var(--font-outfit); font-size: .8125rem; font-weight: 500;
+      color: var(--muted-foreground); padding: var(--sp-2) var(--sp-3);
+      border-radius: var(--radius-xs);
+      transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+    }
+    .nav__link:hover { color: var(--foreground); background: rgba(255,255,255,.05); }
+    .nav__link--cta {
+      color: var(--foreground); background: rgba(255,255,255,.06);
+      border: 1px solid var(--border); font-weight: 600;
+    }
+    .nav__link--cta:hover { background: rgba(255,255,255,.10); border-color: var(--border-hover); }
+
+    /* ─────────────────────────────────────────────
+       HERO
+       ───────────────────────────────────────────── */
+    .hero {
+      min-height: 100svh; display: flex; align-items: flex-start;
+      padding-top: 6rem; position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 55% at 80% 20%, rgba(251,221,122,.08) 0%, transparent 60%),
+        radial-gradient(ellipse 55% 50% at 85% 15%, rgba(0,98,152,.10) 0%, transparent 65%),
+        radial-gradient(ellipse 45% 40% at 10% 85%, rgba(226,233,156,.06) 0%, transparent 60%);
+    }
+    .hero__inner {
+      position: relative; z-index: 1;
+      padding-block: var(--sp-16) var(--sp-12);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-12);
+      align-items: start;
+    }
+    .hero__content {}
+    .hero__tag   { display: inline-flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-8); }
+    .hero__dot   { width: 6px; height: 6px; border-radius: 50%; background: var(--brand-nubia); animation: pulse-dot 2s ease-in-out infinite; }
+    @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.75)} }
+    .hero__title {
+      max-width: 100%;
+      margin-bottom: var(--sp-6);
+      text-wrap: balance;
+      word-spacing: -.02em;
+      line-height: 1.05;
+    }
+    .hero__title em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--brand-nubia) 0%, var(--brand-carota) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero__sub  { max-width: 48ch; margin-bottom: var(--sp-10); color: var(--muted-foreground); }
+    .hero__acts { display: flex; flex-wrap: wrap; gap: var(--sp-4); }
+
+    /* Hero visual — Terminal animado */
+    .hero__visual {
+      position: relative; display: flex; align-items: flex-start;
+      padding-top: var(--sp-6);
+    }
+    .cc-terminal {
+      width: 100%; max-width: 34rem;
+      background: #0E0E0E; border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.04);
+      font-family: var(--font-mono); font-size: .8125rem;
+    }
+    .cc-terminal__bar {
+      display: flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-3) var(--sp-4);
+      background: #161616; border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .cc-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cc-dot--red    { background: #FF5F57; }
+    .cc-dot--yellow { background: #FFBD2E; }
+    .cc-dot--green  { background: #28C840; }
+    .cc-terminal__title {
+      flex: 1; text-align: center;
+      font-size: .6875rem; color: var(--muted-foreground); letter-spacing: .04em;
+    }
+    .cc-terminal__body { padding: var(--sp-5); display: flex; flex-direction: column; gap: var(--sp-3); }
+    .cc-line { display: flex; gap: var(--sp-3); align-items: flex-start; opacity: 0; }
+    .cc-line.cc-show { animation: ccFadeIn .35s var(--ease) forwards; }
+    @keyframes ccFadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+    .cc-prompt { color: var(--brand-kobold); font-weight: 700; flex-shrink: 0; padding-top: .05em; }
+    .cc-cmd    { color: var(--neutral-200); }
+    .cc-info   { color: var(--brand-atmos); }
+    .cc-ok     { color: var(--brand-cloro); }
+    .cc-muted2 { color: var(--muted-foreground); }
+    .cc-amber  { color: var(--brand-nubia); }
+    .cc-yn-wrap { display: flex; gap: var(--sp-2); align-items: center; flex-wrap: wrap; }
+    .cc-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: .1em .55em; border-radius: var(--radius-min); border: 1px solid;
+      font-family: var(--font-mono); font-size: inherit; font-weight: 700;
+      cursor: pointer; transition: background .18s, opacity .18s; background: transparent;
+      line-height: 1.6;
+    }
+    .cc-btn--y { border-color: rgba(40,200,64,.4); color: #28C840; }
+    .cc-btn--y:hover { background: rgba(40,200,64,.14); }
+    .cc-btn--n { border-color: rgba(255,95,87,.4); color: #FF5F57; }
+    .cc-btn--n:hover { background: rgba(255,95,87,.14); }
+    .cc-btn:disabled { opacity: .35; cursor: default; }
+    .cc-cursor {
+      display: inline-block; width: 8px; height: 1em;
+      background: var(--brand-nubia); border-radius: 1px;
+      animation: ccBlink 1s step-end infinite; vertical-align: text-bottom;
+    }
+    @keyframes ccBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    .hero__scroll {
+      position: absolute; bottom: var(--sp-8); left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: var(--sp-2);
+      color: var(--muted-foreground); font-size: .6875rem; letter-spacing: .1em;
+      text-transform: uppercase; animation: scroll-bounce 2.4s ease-in-out infinite;
+    }
+    @keyframes scroll-bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(7px)} }
+
+    /* ─────────────────────────────────────────────
+       HUB — ÍNDICE DE NAVEGAÇÃO
+       ───────────────────────────────────────────── */
+    .hub-sec {
+      background: var(--background);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .hub-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--sp-5);
+    }
+    .hub-card {
+      display: flex; flex-direction: column; gap: var(--sp-3);
+      padding: var(--sp-6);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      text-decoration: none; color: inherit;
+      transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease), background var(--dur) var(--ease);
+      position: relative; overflow: hidden;
+    }
+    .hub-card::before {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(135deg, transparent 60%, rgba(255,255,255,.015) 100%);
+      pointer-events: none;
+    }
+    .hub-card:hover { border-color: var(--border-hover); transform: translateY(-2px); background: #282828; }
+    .hub-card__num {
+      font-family: var(--font-outfit); font-size: .6rem; font-weight: 700;
+      letter-spacing: .14em; text-transform: uppercase;
+    }
+    .hub-card__icon {
+      font-size: 1.5rem; line-height: 1;
+    }
+    .hub-card__title {
+      font-family: var(--font-heading); font-size: .875rem; font-weight: 600;
+      color: var(--foreground); line-height: 1.2;
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+
+    /* Heading com tag brand system */
+    .heading-tag {
+      display: inline;
+      background: rgba(0,98,152,.18);
+      border: 1px solid rgba(0,98,152,.40);
+      border-radius: var(--radius-xxs);
+      color: var(--brand-antar);
+      padding: .05em .3em;
+      font-style: normal;
+    }
+    .hub-card__desc {
+      font-size: .8125rem; color: var(--muted-foreground); line-height: 1.6;
+    }
+    .hub-card__arrow {
+      margin-top: auto; font-size: .75rem; color: var(--muted-foreground);
+      transition: transform var(--dur) var(--ease), color var(--dur) var(--ease);
+    }
+    .hub-card:hover .hub-card__arrow { transform: translateX(3px); color: var(--foreground); }
+    /* Color accents per card */
+    .hub-card--kobold .hub-card__num { color: var(--brand-antar); }
+    .hub-card--kobold:hover { border-color: rgba(0,98,152,.4); }
+    .hub-card--lime .hub-card__num { color: var(--brand-cloro); }
+    .hub-card--lime:hover { border-color: rgba(226,233,156,.3); }
+    .hub-card--orange .hub-card__num { color: var(--brand-carota); }
+    .hub-card--orange:hover { border-color: rgba(248,124,86,.3); }
+    .hub-card--amber .hub-card__num { color: var(--brand-nubia); }
+    .hub-card--amber:hover { border-color: rgba(251,221,122,.3); }
+    .hub-card--teal .hub-card__num { color: var(--brand-atmos); }
+    .hub-card--teal:hover { border-color: rgba(119,197,213,.3); }
+
+    /* ─────────────────────────────────────────────
+       SECTION HEADER
+       ───────────────────────────────────────────── */
+    .sec-header { margin-bottom: clamp(var(--sp-10),5vw,var(--sp-16)); }
+    .sec-header .eyebrow { margin-bottom: var(--sp-3); }
+    .sec-header .t-lg    { max-width: 22ch; margin-bottom: var(--sp-4); }
+    .sec-header .body-lg { max-width: 54ch; }
+
+    /* ─────────────────────────────────────────────
+       CONCEITO — GRID COMPARATIVO
+       ───────────────────────────────────────────── */
+    .concept-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-5);
+    }
+    .concept-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--sp-8); }
+    .concept-card--dim { opacity: .45; }
+    .concept-card--lit { border-color: rgba(0,98,152,.35); }
+    .concept-card__emoji { font-size: 2rem; margin-bottom: var(--sp-5); }
+    .concept-card__role  { font-family: var(--font-outfit); font-size: .6875rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; margin-bottom: var(--sp-2); }
+    .concept-card ul     { display: flex; flex-direction: column; gap: var(--sp-3); margin-top: var(--sp-6); }
+    .concept-card ul li  { font-size: .875rem; color: var(--muted-foreground); line-height: 1.65; }
+    .concept-card--lit ul li { color: var(--foreground); }
+
+    /* ─────────────────────────────────────────────
+       ARQUITETURA DO AGENTE
+       ───────────────────────────────────────────── */
+    .arch-diagram {
+      background: #0D0D0D; border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: var(--sp-10) var(--sp-8);
+      display: flex; flex-direction: column; gap: var(--sp-4); align-items: center;
+    }
+    .arch-row {
+      display: flex; align-items: center; gap: var(--sp-4);
+      width: 100%; max-width: 40rem; justify-content: center;
+    }
+    .arch-row--trio {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      align-items: center;
+      gap: var(--sp-3);
+      width: 100%; max-width: 40rem;
+    }
+    .arch-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: var(--sp-4) var(--sp-5);
+      font-size: .8125rem; font-weight: 600; text-align: center;
+    }
+    .arch-box--accent { background: rgba(0,98,152,.14);     border-color: rgba(0,98,152,.38);     color: var(--brand-antar); }
+    .arch-box--lime   { background: rgba(226,233,156,.08);  border-color: rgba(226,233,156,.30);  color: var(--brand-cloro); }
+    .arch-box--orange { background: rgba(248,124,86,.08);   border-color: rgba(248,124,86,.30);   color: var(--brand-nubia); }
+    .arch-arrow { color: var(--muted-foreground); font-size: 1.125rem; flex-shrink: 0; text-align: center; }
+
+    /* ─────────────────────────────────────────────
+       TIPOS DE AGENTES
+       ───────────────────────────────────────────── */
+    .agents-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-5); }
+    .agent-card  { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--sp-6); display: flex; flex-direction: column; gap: var(--sp-4); }
+    .agent-card__chip {
+      width: 44px; height: 44px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center; font-size: 1.375rem;
+    }
+    .agent-card__chip--1 { background: rgba(0,98,152,.12); }
+    .agent-card__chip--2 { background: rgba(226,233,156,.10); }
+    .agent-card__chip--3 { background: rgba(248,124,86,.10); }
+    .agent-card__chip--4 { background: rgba(119,197,213,.10); }
+    .agent-card__num     { font-family: var(--font-outfit); font-size: .6875rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted-foreground); }
+    .agent-card__body    { font-size: .875rem; color: var(--muted-foreground); line-height: 1.7; }
+    .agent-card__tags    { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: auto; }
+
+    /* ─────────────────────────────────────────────
+       STEPPER
+       ───────────────────────────────────────────── */
+    .stepper { display: flex; flex-direction: column; }
+    .step    { display: grid; grid-template-columns: 3rem 1fr; gap: var(--sp-5); position: relative; }
+    .step:not(:last-child)::after {
+      content: ""; position: absolute; left: 1.4375rem; top: 3rem; bottom: 0;
+      width: 1px; background: var(--border);
+    }
+    .step__num {
+      width: 2.875rem; height: 2.875rem; border-radius: 50%;
+      background: var(--card); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-heading); font-size: .875rem; font-weight: 700;
+      flex-shrink: 0; z-index: 1;
+      transition: all var(--dur) var(--ease); cursor: pointer;
+    }
+    .step.active .step__num { background: var(--neutral-white); color: var(--neutral-black); border-color: var(--neutral-white); }
+    .step__body  { padding-bottom: var(--sp-6); }
+    .step__title {
+      font-family: var(--font-body); font-size: 1.0625rem; font-weight: 600;
+      padding-top: .55rem; cursor: pointer; user-select: none;
+      display: flex; align-items: center; gap: var(--sp-3);
+      text-transform: none; letter-spacing: 0;
+    }
+    .step__title-arrow { color: var(--muted-foreground); font-size: .875rem; transition: transform var(--dur) var(--ease); margin-left: auto; }
+    .step.active .step__title-arrow { transform: rotate(90deg); color: var(--neutral-white); }
+    .step__content { display: none; padding-top: var(--sp-5); }
+    .step.active .step__content { display: block; }
+
+    .step__text { font-size: .9375rem; color: var(--muted-foreground); line-height: 1.75; margin-bottom: var(--sp-4); }
+    .step__text strong { color: var(--foreground); }
+    .step__text em     { font-style: normal; color: var(--brand-cloro); }
+
+    /* Caixas de info dentro dos steps */
+    .info-box {
+      background: #0D0D0D; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: var(--sp-5); margin-top: var(--sp-4);
+    }
+    .info-box--accent { background: rgba(0,98,152,.07);    border-color: rgba(0,98,152,.28); }
+    .info-box--lime   { background: rgba(226,233,156,.06); border-color: rgba(226,233,156,.22); }
+    .info-box--orange { background: rgba(248,124,86,.06);  border-color: rgba(248,124,86,.22); }
+    .info-box__label  { font-family: var(--font-outfit); font-size: .6875rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: var(--sp-3); }
+    .info-box__label--accent { color: var(--brand-antar); }
+    .info-box__label--lime   { color: var(--brand-cloro); }
+    .info-box__label--orange { color: var(--brand-nubia); }
+
+    /* ─────────────────────────────────────────────
+       CODE BLOCK
+       ───────────────────────────────────────────── */
+    .code {
+      background: #0D0D0D; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: var(--sp-5);
+      font-family: var(--font-mono); font-size: .8125rem; line-height: 1.75;
+      color: var(--foreground); overflow-x: auto; white-space: pre-wrap;
+      word-break: break-word; margin-top: var(--sp-4);
+    }
+    .code .c  { color: var(--neutral-600); font-style: italic; } /* comentário */
+    .code .k  { color: var(--brand-antar); }                   /* chave/label */
+    .code .v  { color: var(--brand-cloro); }                   /* valor */
+    .code .s  { color: var(--brand-nubia); }                   /* string */
+    .code .h  { color: var(--brand-carota); }                  /* highlight */
+
+    /* ─────────────────────────────────────────────
+       GRADE DE FERRAMENTAS
+       ───────────────────────────────────────────── */
+    .tools-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: var(--sp-4); }
+    .tool-card  { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--sp-5); display: flex; flex-direction: column; gap: var(--sp-2); }
+    .tool-card--featured { border-color: rgba(255,255,255,.18); background: #1a1a1a; }
+    .tool-card--lv1.tool-card--featured { box-shadow: 0 0 0 1px rgba(226,233,156,.12), inset 0 1px 0 rgba(226,233,156,.06); }
+    .tool-card--lv2.tool-card--featured { box-shadow: 0 0 0 1px rgba(251,221,122,.12), inset 0 1px 0 rgba(251,221,122,.06); }
+    .tool-card--lv3.tool-card--featured { box-shadow: 0 0 0 1px rgba(248,124,86,.12), inset 0 1px 0 rgba(248,124,86,.06); }
+    /* Borda topo por nível nos não-featured */
+    .tool-card--lv1:not(.tool-card--featured) { border-top: 2px solid rgba(226,233,156,.35); }
+    .tool-card--lv2:not(.tool-card--featured) { border-top: 2px solid rgba(251,221,122,.35); }
+    .tool-card--lv3:not(.tool-card--featured) { border-top: 2px solid rgba(248,124,86,.35); }
+    .tool-card__level { font-family: var(--font-outfit); font-size: .6875rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+    .tool-card__level--1 { color: var(--brand-cloro); }
+    .tool-card__level--2 { color: var(--brand-nubia); }
+    .tool-card__level--3 { color: var(--brand-carota); }
+    .tool-card__name  { font-family: var(--font-outfit); font-size: 1.125rem; font-weight: 600; color: var(--foreground); line-height: 1.2; text-transform: uppercase; letter-spacing: .04em; }
+    .tool-card__tools { font-size: .75rem; color: var(--muted-foreground); letter-spacing: .02em; }
+    .tool-card__desc  { font-size: .8125rem; color: var(--muted-foreground); line-height: 1.6; margin-top: var(--sp-1); }
+    .tool-card__list  { list-style: none; padding: 0; margin: var(--sp-1) 0 0; display: flex; flex-direction: column; gap: var(--sp-1); }
+    .tool-card__list li { font-size: .8125rem; color: var(--muted-foreground); padding-left: 1.1em; position: relative; line-height: 1.5; }
+    .tool-card__list li::before { content: "·"; position: absolute; left: 0; color: var(--muted-foreground); }
+    .inline-code { font-family: var(--font-mono); font-size: .75em; background: rgba(255,255,255,.07); border-radius: 3px; padding: .1em .35em; color: var(--brand-cloro); }
+
+    /* ─────────────────────────────────────────────
+       ANATOMIA DO PROMPT
+       ───────────────────────────────────────────── */
+    .anatomy { display: flex; flex-direction: column; gap: 0; }
+    .anatomy__layer {
+      display: grid; grid-template-columns: 10rem 1fr; gap: var(--sp-4);
+      padding: var(--sp-5); border: 1px solid var(--border);
+      border-bottom: none; transition: background var(--dur) var(--ease);
+    }
+    .anatomy__layer:first-child { border-radius: var(--radius-md) var(--radius-md) 0 0; }
+    .anatomy__layer:last-child  { border-bottom: 1px solid var(--border); border-radius: 0 0 var(--radius-md) var(--radius-md); }
+    .anatomy__layer:hover       { background: rgba(255,255,255,.02); }
+    .anatomy__label { font-family: var(--font-outfit); font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; display: flex; flex-direction: column; gap: var(--sp-1); }
+    .anatomy__sub   { font-size: .6875rem; font-weight: 400; color: var(--muted-foreground); letter-spacing: .04em; }
+    .anatomy__body  { font-size: .875rem; color: var(--muted-foreground); line-height: 1.65; }
+
+    /* ─────────────────────────────────────────────
+       EXEMPLOS REAIS — TABS
+       ───────────────────────────────────────────── */
+    .examples-tabs { display: flex; gap: var(--sp-2); flex-wrap: wrap; margin-bottom: var(--sp-6); }
+    .ex-tab {
+      padding: var(--sp-2) var(--sp-5);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-xxs);
+      font-family: var(--font-outfit); font-size: .875rem; font-weight: 600;
+      cursor: pointer; transition: all var(--dur) var(--ease);
+    }
+    .ex-tab.active, .ex-tab:hover {
+      background: var(--neutral-white); color: var(--neutral-black); border-color: var(--neutral-white);
+    }
+    .ex-panel { display: none; }
+    .ex-panel.active { display: block; }
+
+    /* ─────────────────────────────────────────────
+       BOAS PRÁTICAS
+       ───────────────────────────────────────────── */
+    .practices { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: var(--sp-4); }
+    .practice  { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--sp-6); }
+    .practice__icon  { width: 40px; height: 40px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: var(--sp-4); }
+    .practice__title { font-family: var(--font-outfit); font-size: 1rem; font-weight: 700; margin-bottom: var(--sp-2); }
+    .practice__body  { font-size: .8125rem; color: var(--muted-foreground); line-height: 1.7; }
+
+    /* ─────────────────────────────────────────────
+       ERROS COMUNS
+       ───────────────────────────────────────────── */
+    .mistakes { display: flex; flex-direction: column; gap: var(--sp-3); }
+    .mistake  { display: grid; grid-template-columns: 2rem 1fr; gap: var(--sp-4); align-items: start; padding: var(--sp-5); background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+    .mistake__icon { font-size: 1.25rem; padding-top: .1rem; }
+    .mistake__title{ font-family: var(--font-outfit); font-size: .9375rem; font-weight: 700; margin-bottom: var(--sp-1); }
+    .mistake__body { font-size: .8125rem; color: var(--muted-foreground); line-height: 1.65; }
+
+    /* ─────────────────────────────────────────────
+       QUANDO USAR — grid responsivo
+       ───────────────────────────────────────────── */
+    .when-grid { display: flex; flex-direction: column; gap: var(--sp-3); }
+    .when-item {
+      display: grid; grid-template-columns: 8.5rem 1fr; gap: var(--sp-5);
+      align-items: start; padding: var(--sp-5) var(--sp-6);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+    .when-label {
+      font-size: .6875rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--neutral-400); padding-top: .2rem;
+      line-height: 1.5;
+    }
+
+
+    /* ─────────────────────────────────────────────
+       FOOTER
+       ───────────────────────────────────────────── */
+    .footer { border-top: 1px solid var(--border); padding-block: var(--sp-10); }
+    .footer__inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-6); }
+    .footer__logo  { display: flex; align-items: center; }
+    .footer__logo svg { height: 1.25rem; width: auto; display: block; }
+    .footer__links { display: flex; flex-wrap: wrap; gap: var(--sp-6); }
+    .footer__link  { font-size: .875rem; color: var(--muted-foreground); transition: color var(--dur) var(--ease); }
+    .footer__link:hover { color: var(--foreground); }
+    .footer__link--icon { display: flex; align-items: center; }
+    .footer__copy  { font-size: .75rem; color: var(--muted-foreground); width: 100%; }
+
+    /* ─────────────────────────────────────────────
+       REVEAL
+       ───────────────────────────────────────────── */
+    .r  { opacity: 0; transform: translateY(20px); transition: opacity .55s var(--ease), transform .55s var(--ease); }
+    .r.in { opacity: 1; transform: translateY(0); }
+    .r-d1 { transition-delay: .1s; } .r-d2 { transition-delay: .2s; }
+    .r-d3 { transition-delay: .3s; } .r-d4 { transition-delay: .4s; }
+
+    /* ─────────────────────────────────────────────
+       UTILITIES
+       ───────────────────────────────────────────── */
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: var(--sp-8); }
+    .mt-4{margin-top:var(--sp-4)} .mt-6{margin-top:var(--sp-6)} .mt-8{margin-top:var(--sp-8)}
+    .mt-10{margin-top:var(--sp-10)} .mt-12{margin-top:var(--sp-12)}
+    .mb-3{margin-bottom:var(--sp-3)} .mb-4{margin-bottom:var(--sp-4)} .mb-6{margin-bottom:var(--sp-6)}
+
+    /* ─────────────────────────────────────────────
+       RESPONSIVO
+       ───────────────────────────────────────────── */
+    /* Mobile menu button & overlay */
+    .nav__toggle {
+      display: none; flex-direction: column; flex-wrap: wrap;
+      width: 2rem; height: 2rem; align-items: center; justify-content: center;
+      gap: 3.5px; padding: .25rem;
+      background: transparent; border: 1px solid var(--border);
+      border-radius: var(--radius-xs); cursor: pointer;
+      transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+    }
+    .nav__toggle:hover { border-color: var(--border-hover); background: rgba(255,255,255,.05); }
+    .nav__toggle__dot {
+      width: 3.5px; height: 3.5px; border-radius: 50%;
+      background: var(--muted-foreground); transition: background var(--dur) var(--ease);
+      flex-shrink: 0;
+    }
+    .nav__toggle:hover .nav__toggle__dot { background: var(--foreground); }
+
+    .nav-mobile {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,.96); backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex; flex-direction: column;
+      padding: var(--sp-6) var(--sp-5);
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s var(--ease);
+    }
+    .nav-mobile.open { opacity: 1; pointer-events: all; }
+    .nav-mobile__header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: var(--sp-8);
+    }
+    .nav-mobile__close {
+      width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,.06); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); cursor: pointer; color: var(--foreground);
+      font-size: 1.25rem; line-height: 1;
+      transition: background var(--dur) var(--ease);
+    }
+    .nav-mobile__close:hover { background: rgba(255,255,255,.12); }
+    .nav-mobile__links {
+      display: flex; flex-direction: column; gap: var(--sp-2); flex: 1;
+    }
+    .nav-mobile__link {
+      font-family: var(--font-outfit); font-size: 1.5rem; font-weight: 600;
+      color: var(--muted-foreground); padding: var(--sp-3) var(--sp-4);
+      border-radius: var(--radius-sm);
+      transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+      display: flex; align-items: center; gap: var(--sp-3);
+    }
+    .nav-mobile__link:hover { color: var(--foreground); background: rgba(255,255,255,.04); }
+    .nav-mobile__link-num {
+      font-size: .75rem; font-family: var(--font-mono);
+      color: var(--muted-foreground); opacity: .5; width: 1.5rem; flex-shrink: 0;
+    }
+    .nav-mobile__link--top {
+      font-size: 1rem; color: var(--muted-foreground); opacity: .6;
+      margin-bottom: var(--sp-2); padding-bottom: var(--sp-4);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ─── TABLET ───────────────────────────────── */
+    @media (max-width: 900px) {
+      .hero__inner { grid-template-columns: 1fr; gap: var(--sp-8); padding-block: var(--sp-6) var(--sp-10); }
+      .hero__visual { display: flex; padding-top: 0; }
+      .cc-terminal { max-width: 100%; font-size: .75rem; }
+      .nav__links .nav__link:not(.nav__link--cta) { display: none; }
+      .nav__toggle { display: flex; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .agents-grid { grid-template-columns: repeat(2, 1fr); }
+      .tools-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ─── MOBILE LANDSCAPE / TABLET PEQUENO ─── */
+    @media (max-width: 640px) {
+      /* Layout geral */
+      .sec { padding-block: var(--sp-12); }
+      .sec-header { margin-bottom: var(--sp-10); }
+
+      /* Concept grid */
+      .concept-grid { grid-template-columns: 1fr; gap: var(--sp-4); }
+      .concept-card { padding: var(--sp-6); }
+
+      /* Anatomy (Prompt) */
+      .anatomy__layer { grid-template-columns: 1fr; gap: var(--sp-2); padding: var(--sp-4); }
+
+      /* Stepper — principal problema reportado */
+      .step { grid-template-columns: 2.25rem 1fr; gap: var(--sp-3); }
+      .step:not(:last-child)::after { left: 1.0625rem; top: 2.75rem; }
+      .step__num { width: 2.25rem; height: 2.25rem; font-size: .8125rem; }
+      .step__title { font-family: var(--font-body); font-size: 1rem; gap: var(--sp-2); padding-top: .35rem; text-transform: none; letter-spacing: 0; }
+      .step__content { padding-top: var(--sp-4); }
+      .step__body { padding-bottom: var(--sp-5); }
+      .step__text { font-size: .875rem; margin-bottom: var(--sp-4); }
+
+      /* Info boxes dentro dos steps */
+      .info-box { padding: var(--sp-4); margin-top: var(--sp-3); }
+      .info-box__label { margin-bottom: var(--sp-3); }
+
+      /* Code blocks */
+      .code { font-size: .75rem; padding: var(--sp-4); line-height: 1.65; }
+
+      /* Ferramentas */
+      .tool-card { padding: var(--sp-5); }
+
+      /* Agentes */
+      .agents-grid { grid-template-columns: repeat(2, 1fr); }
+
+      /* Boas práticas */
+      .practices { grid-template-columns: 1fr; gap: var(--sp-4); }
+
+      /* Erros comuns */
+      .mistakes { gap: var(--sp-3); }
+      .mistake { padding: var(--sp-4) var(--sp-5); }
+
+      /* Hub */
+      .hub-grid { grid-template-columns: 1fr 1fr; }
+
+      /* Grid-2 */
+      .grid-2 { grid-template-columns: 1fr; gap: var(--sp-4); }
+
+      /* Arch diagram */
+      .arch-diagram { padding: var(--sp-6) var(--sp-4); gap: var(--sp-3); }
+      .arch-row { max-width: 100%; }
+      .arch-row--trio {
+        grid-template-columns: 1fr;
+        gap: var(--sp-2);
+        max-width: 14rem;
+        margin-inline: auto;
+      }
+      .arch-row--trio .arch-arrow { transform: rotate(90deg); }
+
+      /* Exemplos tabs */
+      .examples-tabs { gap: var(--sp-2); }
+      .ex-tab { padding: var(--sp-2) var(--sp-4); font-size: .8125rem; }
+
+      /* When-use list */
+      .when-item { grid-template-columns: 1fr; gap: var(--sp-2); }
+      .when-label { padding-top: 0; }
+    }
+
+    /* ─── MOBILE PORTRAIT ───────────────────── */
+    @media (max-width: 480px) {
+      /* Hero */
+      .hero { padding-top: 4.5rem; }
+      .hero__acts { flex-direction: column; align-items: flex-start; gap: var(--sp-3); }
+      .hero__title { max-width: 100%; }
+
+      /* Hub */
+      .hub-grid { grid-template-columns: 1fr; }
+
+      /* Agentes — mobile coluna única */
+      .agents-grid { grid-template-columns: 1fr; }
+
+      /* Ferramentas — mobile coluna única */
+      .tools-grid { grid-template-columns: 1fr; }
+
+      /* Stepper mais compacto */
+      .step { grid-template-columns: 2rem 1fr; gap: var(--sp-2); }
+      .step:not(:last-child)::after { left: .9375rem; top: 2.5rem; }
+      .step__num { width: 2rem; height: 2rem; font-size: .75rem; }
+      .step__title { font-size: .9375rem; }
+      .step__title-arrow { font-size: .8125rem; }
+
+      /* Tipografia de seção */
+      .t-lg { font-size: clamp(1.75rem, 8vw, 2.5rem); }
+
+      /* Cabeçalho de seção */
+      .sec-header .t-lg { line-height: 1.08; }
+
+      /* Mistake icon menor */
+      .mistake { grid-template-columns: 1.75rem 1fr; gap: var(--sp-3); padding: var(--sp-4); }
+      .mistake__title { font-size: .875rem; }
+
+      /* Tool cards */
+      .tool-card__name { font-size: 1.125rem; }
+
+      /* Terminal */
+      .cc-terminal__body { padding: var(--sp-4); gap: var(--sp-3); }
+      .cc-terminal { font-size: .6875rem; }
+    }
+
+    /* ─── MOBILE MUITO PEQUENO (320–359px) ─── */
+    @media (max-width: 360px) {
+      .hero__title { font-size: 2.375rem; }
+      .btn { padding: var(--sp-3) var(--sp-5); font-size: .875rem; }
+      .hub-card { padding: var(--sp-4); }
+      .code { font-size: .6875rem; }
+    }
+  
+    /* ─────────────────────────────────────────────
+       MATERIAL SYMBOLS
+       ───────────────────────────────────────────── */
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'opsz' 24, 'GRAD' 0;
+      line-height: 1; display: inline-flex; align-items: center; justify-content: center;
+      user-select: none; font-size: inherit;
+    }
+    .hub-card__icon .material-symbols-outlined { font-size: 1.375rem; color: var(--muted-foreground); }
+    .hub-card__arrow .material-symbols-outlined { font-size: 1rem; }
+    .concept-card__emoji .material-symbols-outlined { font-size: 1.75rem; }
+    .agent-card__chip .material-symbols-outlined { font-size: 1.25rem; }
+    .practice__icon .material-symbols-outlined { font-size: 1.125rem; }
+    .mistake__icon .material-symbols-outlined { font-size: 1.125rem; }
+
+    /* ─────────────────────────────────────────────
+       ESPAÇAMENTO GLOBAL MELHORADO
+       ───────────────────────────────────────────── */
+    /* Body text — mais respiração */
+    .body-lg { line-height: 1.8; }
+    .body-sm { line-height: 1.72; letter-spacing: .008em; }
+    .body-xs { line-height: 1.65; letter-spacing: .008em; }
+
+    /* Títulos — mais espaço embaixo quando seguidos de conteúdo */
+    h2 + p, h3 + p { margin-top: var(--sp-4); }
+    .sec-header h2 { margin-bottom: var(--sp-4); }
+    .sec-header { margin-bottom: clamp(var(--sp-12), 6vw, var(--sp-20)); }
+
+    /* Cards — mais gap interno */
+    .hub-card  { gap: var(--sp-4); }
+    .agent-card { gap: var(--sp-5); }
+    .tool-card  { gap: var(--sp-3); padding: var(--sp-6); }
+    .tool-card__desc  { line-height: 1.7; }
+    .tool-card__list li { line-height: 1.65; }
+    .concept-card ul li { line-height: 1.65; }
+
+    /* Step content */
+    .step__text { line-height: 1.8; margin-bottom: var(--sp-5); }
+    .step__text + .step__text { margin-top: calc(-1 * var(--sp-2)); }
+
+    /* Practice & Mistake */
+    .practice__body { line-height: 1.75; }
+    .mistake__body  { line-height: 1.7; }
+    .mistake { padding: var(--sp-6); gap: var(--sp-4); }
+
+    /* Eyebrow → heading gap */
+    .eyebrow.mb-3 { margin-bottom: var(--sp-4); }
+
+    /* Paragraph rhythm inside rich text containers */
+    .step__content p + p { margin-top: var(--sp-3); }
+    .card p + p          { margin-top: var(--sp-3); }
+
+    /* ─────────────────────────────────────────────
+       REFINAMENTOS DE UI — HIERARQUIA E RITMO
+       ───────────────────────────────────────────── */
+
+    /* Tipografia — hierarquia e legibilidade */
+    h1, h2 { line-height: 1.06; letter-spacing: -.035em; }
+    h3, h4 { line-height: 1.15; }
+    .t-sm   { line-height: 1.2; }
+    .body-lg { line-height: 1.82; }
+    .body-sm { font-size: .875rem; line-height: 1.75; }
+
+    /* Hub cards — mais gap e respiro interno */
+    .hub-card { gap: var(--sp-4); padding: var(--sp-6) var(--sp-6); }
+    .hub-card__desc { line-height: 1.65; }
+    .hub-card__title { line-height: 1.2; }
+
+    /* Concept card — corrige --sp-7 indefinido */
+    .concept-card { padding: var(--sp-8); }
+    .concept-card__emoji { margin-bottom: var(--sp-5); }
+    .concept-card ul { gap: var(--sp-3); margin-top: var(--sp-6); }
+    .concept-card ul li { font-size: .875rem; line-height: 1.65; }
+
+    /* Agent cards */
+    .agent-card { padding: var(--sp-7, 1.75rem); gap: var(--sp-5); }
+
+    /* Tool cards */
+    .tool-card { padding: var(--sp-6); gap: var(--sp-3); }
+    .tool-card__name { font-size: 1.25rem; margin-top: var(--sp-1); }
+    .tool-card__desc { line-height: 1.72; }
+
+    /* Practices grid */
+    .practices { gap: var(--sp-5); }
+    .practice { padding: var(--sp-6); }
+    .practice__icon {
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    /* Mistakes */
+    .mistakes { gap: var(--sp-4); }
+    .mistake  { padding: var(--sp-6); border-radius: var(--radius-md); gap: var(--sp-4); }
+    .mistake__icon .material-symbols-outlined { font-size: 1.25rem; color: var(--brand-nubia); }
+
+    /* Sec-header breathing */
+    .sec-header { margin-bottom: clamp(var(--sp-12), 6vw, var(--sp-20)); }
+    .sec-header .t-lg { max-width: 24ch; line-height: 1.06; }
+
+    /* Info box refinements */
+    .info-box { padding: var(--sp-6); border-radius: var(--radius-md); }
+    .info-box__label { margin-bottom: var(--sp-4); }
+
+    /* Stepper — títulos em Inter, não Outfit */
+    .step__title { font-family: var(--font-body); text-transform: none; letter-spacing: 0; line-height: 1.35; padding-top: .45rem; }
+    .step__content { padding-top: var(--sp-6); }
+
+    /* Terminal body */
+    .cc-terminal__body { padding: var(--sp-6); gap: var(--sp-4); }
+
+    /* Grid-2 gap */
+    .grid-2 { gap: var(--sp-6); }
+
+    /* Nav CTA button — pill */
+    .nav__link--cta { border-radius: 999px; }
+
+    /* Ex tabs — consistent tag styling */
+    .ex-tab { border-radius: var(--radius-xxs); }
+
+    /* Footer breathing */
+    .footer { padding-block: var(--sp-12); }
+
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════
+     NAV
+════════════════════════════════════════════ -->
+<nav class="nav" id="nav">
+  <div class="wrap">
+    <div class="nav__inner">
+      <a href="#" class="nav__logo" aria-label="Overlens">
+        <svg style="--fill-0:var(--neutral-white);" preserveAspectRatio="xMidYMid meet" viewBox="0 0 264 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Overlens">
+<path d="M17.1415 34C14.7474 34 12.513 33.5593 10.4381 32.6778C8.36326 31.7963 6.54377 30.5843 4.97965 29.0417C3.41553 27.4676 2.18658 25.6574 1.29279 23.6111C0.430931 21.5333 0 19.3139 0 16.9528C0 14.5917 0.430931 12.388 1.29279 10.3417C2.18658 8.29537 3.39957 6.50093 4.93177 4.95833C6.49589 3.38426 8.29942 2.17222 10.3423 1.32222C12.4172 0.440741 14.6517 0 17.0457 0C19.4398 0 21.6583 0.440741 23.7012 1.32222C25.7761 2.17222 27.5956 3.38426 29.1597 4.95833C30.7238 6.50093 31.9368 8.31111 32.7987 10.3889C33.6924 12.4352 34.1393 14.6389 34.1393 17C34.1393 19.3611 33.6924 21.5806 32.7987 23.6583C31.9368 25.7046 30.7238 27.4991 29.1597 29.0417C27.6275 30.5843 25.824 31.7963 23.7491 32.6778C21.7062 33.5593 19.5036 34 17.1415 34ZM17.0457 28.8056C19.3121 28.8056 21.2912 28.3019 22.983 27.2944C24.7067 26.287 26.0474 24.9019 27.005 23.1389C27.9946 21.3444 28.4893 19.2824 28.4893 16.9528C28.4893 15.2213 28.2021 13.6472 27.6275 12.2306C27.0848 10.7824 26.3028 9.53889 25.2813 8.5C24.2598 7.42963 23.0468 6.61111 21.6423 6.04445C20.2697 5.47778 18.7375 5.19444 17.0457 5.19444C14.8113 5.19444 12.8322 5.69815 11.1085 6.70556C9.41665 7.68148 8.07597 9.05093 7.08642 10.8139C6.1288 12.5769 5.64999 14.6231 5.64999 16.9528C5.64999 18.6843 5.92131 20.2898 6.46397 21.7694C7.03854 23.2176 7.8206 24.4611 8.81015 25.5C9.83162 26.5389 11.0446 27.3574 12.4491 27.9556C13.8536 28.5222 15.3858 28.8056 17.0457 28.8056Z" fill="var(--fill-0, black)"/>
+<path d="M226.573 34C223.924 34 221.673 33.5278 219.822 32.5833C217.97 31.6389 216.31 30.2537 214.842 28.4278L218.577 24.7444C219.502 26.0667 220.604 27.1056 221.881 27.8611C223.157 28.5852 224.785 28.9472 226.764 28.9472C228.616 28.9472 230.084 28.5694 231.17 27.8139C232.287 27.0583 232.845 26.0194 232.845 24.6972C232.845 23.5954 232.558 22.6981 231.984 22.0056C231.409 21.313 230.643 20.7463 229.685 20.3056C228.76 19.8333 227.722 19.4241 226.573 19.0778C225.456 18.7 224.323 18.2907 223.173 17.85C222.056 17.3778 221.019 16.7954 220.061 16.1028C219.135 15.4102 218.385 14.513 217.811 13.4111C217.236 12.3093 216.949 10.9083 216.949 9.20833C216.949 7.25648 217.428 5.6037 218.385 4.25C219.375 2.86482 220.7 1.81019 222.359 1.08611C224.019 0.362037 225.871 0 227.914 0C230.116 0 232.079 0.425 233.803 1.275C235.559 2.125 236.979 3.21111 238.064 4.53333L234.33 8.21667C233.372 7.1463 232.367 6.35926 231.313 5.85556C230.292 5.32037 229.111 5.05278 227.77 5.05278C226.11 5.05278 224.801 5.38333 223.844 6.04445C222.918 6.70556 222.455 7.63426 222.455 8.83056C222.455 9.83796 222.742 10.6565 223.317 11.2861C223.892 11.8843 224.642 12.4037 225.567 12.8444C226.525 13.2537 227.562 13.6472 228.68 14.025C229.829 14.4028 230.962 14.8278 232.079 15.3C233.228 15.7722 234.266 16.3861 235.192 17.1417C236.149 17.8657 236.915 18.8102 237.49 19.975C238.064 21.1398 238.352 22.6037 238.352 24.3667C238.352 27.3259 237.282 29.6713 235.144 31.4028C233.037 33.1343 230.18 34 226.573 34Z" fill="var(--fill-0, black)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M253.562 20.7778C251.551 20.7778 249.747 20.3213 248.151 19.4083C246.587 18.4639 245.358 17.2046 244.464 15.6306C243.571 14.0565 243.124 12.2935 243.124 10.3417C243.124 8.38982 243.555 6.64259 244.417 5.1C245.31 3.52593 246.539 2.28241 248.103 1.36944C249.668 0.456481 251.471 0 253.514 0C255.557 0 257.36 0.456481 258.925 1.36944C260.521 2.28241 261.766 3.52593 262.659 5.1C263.553 6.64259 264 8.38982 264 10.3417C264 12.2935 263.553 14.0722 262.659 15.6778C261.766 17.2519 260.537 18.4954 258.972 19.4083C257.408 20.3213 255.605 20.7778 253.562 20.7778ZM253.514 19.2667C255.27 19.2667 256.802 18.8731 258.111 18.0861C259.451 17.2991 260.505 16.2287 261.271 14.875C262.037 13.5213 262.42 12.0102 262.42 10.3417C262.42 8.67315 262.037 7.17778 261.271 5.85556C260.505 4.53333 259.451 3.4787 258.111 2.69167C256.802 1.90463 255.27 1.51111 253.514 1.51111C251.79 1.51111 250.258 1.90463 248.917 2.69167C247.609 3.4787 246.571 4.53333 245.805 5.85556C245.071 7.17778 244.704 8.67315 244.704 10.3417C244.704 12.0102 245.071 13.5213 245.805 14.875C246.571 16.2287 247.609 17.2991 248.917 18.0861C250.258 18.8731 251.79 19.2667 253.514 19.2667Z" fill="var(--fill-0, black)"/>
+<path d="M35.5189 0.472222L49.0693 33.5278H52.8998L66.546 0.472222H60.6566L51.0372 24.5938L41.5041 0.472222H35.5189Z" fill="var(--fill-0, black)"/>
+<path d="M71.3479 0.472222V33.5278H93.9V28.5694H76.8543V19.0306H92.272V14.2611H76.8543V5.43056H93.6606V0.472222H71.3479Z" fill="var(--fill-0, black)"/>
+<path d="M105.097 19.5028H106.516L117.977 33.5278H124.92L113.159 19.4705C114.847 19.3619 116.357 18.9791 117.689 18.3222C119.286 17.5352 120.514 16.4333 121.376 15.0167C122.27 13.6 122.717 11.9315 122.717 10.0111C122.717 8.18518 122.27 6.56389 121.376 5.14722C120.514 3.69908 119.286 2.56574 117.689 1.74722C116.093 0.897222 114.242 0.472222 112.135 0.472222H99.5904V33.5278H105.097V19.5028ZM105.097 15.0167V5.19444H111.896C113.588 5.19444 114.896 5.66667 115.822 6.61111C116.748 7.55556 117.211 8.72037 117.211 10.1056C117.211 11.6481 116.732 12.8602 115.774 13.7417C114.849 14.5917 113.54 15.0167 111.848 15.0167H105.097Z" fill="var(--fill-0, black)"/>
+<path d="M129.002 33.5278V0.472222H134.508V28.5694H150.309V33.5278H129.002Z" fill="var(--fill-0, black)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M155.327 0.472222V33.5278H177.879V28.5694H160.833V19.0306H176.251V14.2611H160.833V5.43056H177.64V0.472222H155.327Z" fill="var(--fill-0, black)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M205.116 23.282L187.4 0.472222H183.57V33.5278H189.076V10.718L206.792 33.5278H210.623V0.472222H205.116V23.282Z" fill="var(--fill-0, black)"/>
+<path d="M251.886 11.05H252.336L256.1 15.6778H258.398L254.488 11.0413C255.372 10.9899 256.1 10.7094 256.674 10.2C257.345 9.63333 257.68 8.86204 257.68 7.88611C257.68 6.97315 257.345 6.23333 256.674 5.66667C256.036 5.06852 255.206 4.76944 254.184 4.76944H250.067V15.6778H251.886V11.05ZM251.886 9.53889V6.32778H254.089C254.631 6.32778 255.062 6.48518 255.381 6.8C255.701 7.11481 255.86 7.49259 255.86 7.93333C255.86 8.43704 255.701 8.83056 255.381 9.11389C255.062 9.39722 254.631 9.53889 254.089 9.53889H251.886Z" fill="var(--fill-0, black)"/>
+</g>
+</svg>
+      </a>
+      <nav class="nav__links" aria-label="Seções do guia">
+        <a href="#hub" class="nav__link">Índice</a>
+        <a href="#fundamentos" class="nav__link">Fundamentos</a>
+        <a href="#tutorial" class="nav__link">Tutorial</a>
+        <a href="#praticas" class="nav__link">Práticas</a>
+      </nav>
+      <button class="nav__toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
+        <span class="nav__toggle__dot"></span><span class="nav__toggle__dot"></span><span class="nav__toggle__dot"></span>
+        <span class="nav__toggle__dot"></span><span class="nav__toggle__dot"></span><span class="nav__toggle__dot"></span>
+        <span class="nav__toggle__dot"></span><span class="nav__toggle__dot"></span><span class="nav__toggle__dot"></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile menu overlay -->
+<div class="nav-mobile" id="navMobile" role="dialog" aria-modal="true" aria-label="Menu de navegação">
+  <div class="nav-mobile__header">
+    <span class="eyebrow" style="opacity:.5">Menu</span>
+    <button class="nav-mobile__close" id="navClose" aria-label="Fechar menu"><span class="material-symbols-outlined" style="font-size:1.125rem">close</span></button>
+  </div>
+  <nav class="nav-mobile__links">
+    <a href="#inicio" class="nav-mobile__link nav-mobile__link--top nav-mobile__close-on-click">
+      <span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle">arrow_upward</span> Início
+    </a>
+    <a href="#fundamentos" class="nav-mobile__link nav-mobile__close-on-click">
+      <span class="nav-mobile__link-num">01</span>Fundamentos
+    </a>
+    <a href="#tipos" class="nav-mobile__link nav-mobile__close-on-click">
+      <span class="nav-mobile__link-num">02</span>Tipos de Agente
+    </a>
+    <a href="#ferramentas" class="nav-mobile__link nav-mobile__close-on-click">
+      <span class="nav-mobile__link-num">03</span>Ferramentas
+    </a>
+    <a href="#tutorial" class="nav-mobile__link nav-mobile__close-on-click">
+      <span class="nav-mobile__link-num">04</span>Tutorial
+    </a>
+    <a href="#exemplos" class="nav-mobile__link nav-mobile__close-on-click">
+      <span class="nav-mobile__link-num">05</span>Exemplos Reais
+    </a>
+    <a href="#praticas" class="nav-mobile__link nav-mobile__close-on-click">
+      <span class="nav-mobile__link-num">06</span>Comportamento
+    </a>
+    <a href="#ferramentas-ia" class="nav-mobile__link nav-mobile__close-on-click">
+      <span class="nav-mobile__link-num">07</span>Claude e Claude Code
+    </a>
+  </nav>
+</div>
+
+<!-- ════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════ -->
+<header class="hero" id="inicio">
+  <div class="wrap">
+    <div class="hero__inner">
+
+      <!-- Conteúdo principal -->
+      <div class="hero__content">
+        <h1 class="t-xl hero__title r r-d1">
+          Crie <em>Agentes de IA</em> do zero ao workflow
+        </h1>
+
+        <p class="body-lg hero__sub r r-d2">
+          Da teoria ao workflow funcionando. Um guia direto, sem atalhos, para quem quer realmente entender como agentes de IA funcionam, e sair construindo o primeiro.
+        </p>
+
+        <div class="hero__acts r r-d3">
+          <a href="#hub" class="btn btn--solid">Ver o Índice <span class="material-symbols-outlined" style="font-size:1rem">arrow_downward</span></a>
+          <a href="#tutorial" class="btn btn--ghost">Ir ao Tutorial</a>
+        </div>
+      </div>
+
+      <!-- Terminal animado — Claude Code -->
+      <div class="hero__visual" aria-hidden="true">
+        <div class="cc-terminal r r-d2">
+          <div class="cc-terminal__bar">
+            <span class="cc-dot cc-dot--red"></span>
+            <span class="cc-dot cc-dot--yellow"></span>
+            <span class="cc-dot cc-dot--green"></span>
+            <span class="cc-terminal__title">claude — guia-agentes</span>
+          </div>
+          <div class="cc-terminal__body">
+            <div class="cc-line" id="cl1">
+              <span class="cc-prompt">$</span>
+              <span class="cc-cmd">claude "Crie um agente de pesquisa de marca"</span>
+            </div>
+            <div class="cc-line" id="cl2">
+              <span class="cc-info">✦ Analisando contexto do projeto...</span>
+            </div>
+            <div class="cc-line" id="cl3">
+              <span class="cc-ok">✓ System prompt definido</span>
+            </div>
+            <div class="cc-line" id="cl4">
+              <span class="cc-ok">✓ Ferramentas configuradas: web_search, notify</span>
+            </div>
+            <div class="cc-line" id="cl5">
+              <span class="cc-ok">✓ Memória de contexto inicializada</span>
+            </div>
+            <div class="cc-line" id="cl6">
+              <span class="cc-amber">→ Agente criado em agents/brand-monitor.py</span>
+            </div>
+            <div class="cc-line" id="cl7">
+              <span class="cc-yn-wrap">
+                <span class="cc-muted2">Executar agora?</span>
+                <button class="cc-btn cc-btn--y" onclick="terminalRun('y')" aria-label="Sim, executar">Y</button>
+                <button class="cc-btn cc-btn--n" onclick="terminalRun('n')" aria-label="Não executar">N</button>
+              </span>
+            </div>
+            <div class="cc-line" id="cl8" style="opacity:0;height:0;overflow:hidden;"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="hero__scroll" aria-hidden="true">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 8l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>rolar</span>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════════
+     HUB — ÍNDICE DO GUIA
+════════════════════════════════════════════ -->
+<section class="sec hub-sec" id="hub">
+  <div class="wrap">
+
+    <div class="sec-header r">
+      <p class="eyebrow eyebrow--accent mb-3">Índice do Guia</p>
+      <h2 class="t-lg">7 partes. Do zero ao workflow real.</h2>
+      <p class="body-lg mt-4">Cada parte constrói sobre a anterior. Leia em ordem ou navegue direto para o que precisa agora.</p>
+    </div>
+
+    <div class="hub-grid">
+
+      <a href="#fundamentos" class="hub-card hub-card--kobold r">
+        <div class="hub-card__num">Parte 01</div>
+        <div class="hub-card__icon"><span class="material-symbols-outlined">settings</span></div>
+        <div class="hub-card__title">Fundamentos</div>
+        <div class="hub-card__desc">O que é de verdade um agente de IA: como ele difere de um simples chatbot.</div>
+        <div class="hub-card__arrow"><span class="material-symbols-outlined">arrow_forward</span></div>
+      </a>
+
+      <a href="#tipos" class="hub-card hub-card--lime r r-d1">
+        <div class="hub-card__num">Parte 02</div>
+        <div class="hub-card__icon"><span class="material-symbols-outlined">category</span></div>
+        <div class="hub-card__title">Tipos de Agentes</div>
+        <div class="hub-card__desc">Os 4 tipos: Pesquisa, Produção, Gestão e Orquestrador. Quando usar cada um.</div>
+        <div class="hub-card__arrow"><span class="material-symbols-outlined">arrow_forward</span></div>
+      </a>
+
+      <a href="#ferramentas" class="hub-card hub-card--orange r r-d2">
+        <div class="hub-card__num">Parte 03</div>
+        <div class="hub-card__icon"><span class="material-symbols-outlined">build</span></div>
+        <div class="hub-card__title">Ferramentas</div>
+        <div class="hub-card__desc">Sem código, low-code ou com código. Mapa honesto de qual usar, e quando.</div>
+        <div class="hub-card__arrow"><span class="material-symbols-outlined">arrow_forward</span></div>
+      </a>
+
+      <a href="#tutorial" class="hub-card hub-card--amber r r-d3">
+        <div class="hub-card__num">Parte 04</div>
+        <div class="hub-card__icon"><span class="material-symbols-outlined">format_list_numbered</span></div>
+        <div class="hub-card__title">Tutorial</div>
+        <div class="hub-card__desc">8 passos concretos para criar seu primeiro agente do zero. Sem atalhar.</div>
+        <div class="hub-card__arrow"><span class="material-symbols-outlined">arrow_forward</span></div>
+      </a>
+
+      <a href="#exemplos" class="hub-card hub-card--teal r r-d1">
+        <div class="hub-card__num">Parte 05</div>
+        <div class="hub-card__icon"><span class="material-symbols-outlined">lightbulb</span></div>
+        <div class="hub-card__title">Exemplos Reais</div>
+        <div class="hub-card__desc">3 agentes completos com system prompt, lógica e caso de uso real.</div>
+        <div class="hub-card__arrow"><span class="material-symbols-outlined">arrow_forward</span></div>
+      </a>
+
+      <a href="#praticas" class="hub-card hub-card--lime r r-d2">
+        <div class="hub-card__num">Parte 06</div>
+        <div class="hub-card__icon"><span class="material-symbols-outlined">psychology</span></div>
+        <div class="hub-card__title">Boas Práticas</div>
+        <div class="hub-card__desc">O que separa agentes mediocres dos que realmente funcionam em produção.</div>
+        <div class="hub-card__arrow"><span class="material-symbols-outlined">arrow_forward</span></div>
+      </a>
+
+      <a href="#ferramentas-ia" class="hub-card hub-card--kobold r r-d3">
+        <div class="hub-card__num">Parte 07</div>
+        <div class="hub-card__icon"><span class="material-symbols-outlined">terminal</span></div>
+        <div class="hub-card__title">Claude e Claude Code</div>
+        <div class="hub-card__desc">O ecossistema Anthropic: interface, API e CLI. O que usar em cada etapa.</div>
+        <div class="hub-card__arrow"><span class="material-symbols-outlined">arrow_forward</span></div>
+      </a>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     FUNDAMENTOS — O QUE É UM AGENTE
+════════════════════════════════════════════ -->
+<section class="sec" id="fundamentos">
+  <div class="wrap">
+
+    <div class="sec-header r">
+      <p class="eyebrow eyebrow--accent mb-3">Parte 01: Fundamentos</p>
+      <h2 class="t-lg">O que é um agente de IA, de verdade</h2>
+      <p class="body-lg mt-4">Não é só um chatbot com instrução. Agente de IA é um sistema com objetivo, autonomia para agir, memória de contexto e capacidade de usar ferramentas. Entender essa diferença é o primeiro passo para sair do uso superficial.</p>
+    </div>
+
+    <!-- Comparativo -->
+    <div class="concept-grid r">
+      <div class="concept-card concept-card--dim">
+        <div class="concept-card__emoji" aria-hidden="true"><span class="material-symbols-outlined">chat</span></div>
+        <div class="concept-card__role eyebrow">Uso comum</div>
+        <h3 class="t-sm mt-4 mb-3">Prompt → Resposta</h3>
+        <p class="body-sm">Você digita. A IA responde. Conversa encerra. Nenhuma ação no mundo, nenhuma memória real, nenhum encadeamento. Útil para tarefas rápidas, mas o teto é baixo.</p>
+        <ul>
+          <li>— Reativo, não proativo</li>
+          <li>— Sem memória entre sessões</li>
+          <li>— Depende de você para cada micro-decisão</li>
+          <li>— Não acessa ferramentas externas</li>
+        </ul>
+      </div>
+      <div class="concept-card concept-card--lit">
+        <div class="concept-card__emoji" aria-hidden="true"><span class="material-symbols-outlined">smart_toy</span></div>
+        <div class="concept-card__role eyebrow eyebrow--accent">Agente de IA</div>
+        <h3 class="t-sm mt-4 mb-3">Objetivo → Execução autônoma</h3>
+        <p class="body-sm">Você define o objetivo. O agente planeja, executa, corrige, usa ferramentas e entrega resultado, com mínima intervenção. Você é o diretor criativo, não o operador.</p>
+        <ul>
+          <li>+ Autônomo: executa sequências completas</li>
+          <li>+ Contextual: mantém identidade e instruções</li>
+          <li>+ Ferramental: busca, escreve, calcula, integra</li>
+          <li>+ Encadeável: conecta a outros agentes</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Arquitetura -->
+    <div class="mt-12 r">
+      <p class="eyebrow mb-6">Arquitetura básica de um agente</p>
+      <div class="arch-diagram">
+        <div class="arch-row">
+          <div class="arch-box arch-box--accent">Input<br><span style="font-size:.7rem;font-weight:400;color:var(--muted-foreground)">Contexto / Tarefa</span></div>
+        </div>
+        <div class="arch-arrow" aria-hidden="true">↓</div>
+        <div class="arch-row">
+          <div class="arch-box arch-box--accent" style="min-width:14rem">System Prompt<br><span style="font-size:.7rem;font-weight:400;color:var(--muted-foreground)">Identidade · Regras · Objetivo · Formato</span></div>
+        </div>
+        <div class="arch-arrow" aria-hidden="true">↓</div>
+        <div class="arch-row arch-row--trio">
+          <div class="arch-box">Memória<br><span style="font-size:.7rem;font-weight:400;color:var(--muted-foreground)">Histórico · RAG</span></div>
+          <div class="arch-arrow" aria-hidden="true">+</div>
+          <div class="arch-box arch-box--lime">Raciocínio<br><span style="font-size:.7rem;font-weight:400;color:var(--muted-foreground)">LLM (Claude, GPT…)</span></div>
+          <div class="arch-arrow" aria-hidden="true">+</div>
+          <div class="arch-box arch-box--orange">Ferramentas<br><span style="font-size:.7rem;font-weight:400;color:var(--muted-foreground)">APIs · Buscas · Scripts</span></div>
+        </div>
+        <div class="arch-arrow" aria-hidden="true">↓</div>
+        <div class="arch-row">
+          <div class="arch-box arch-box--lime">Output<br><span style="font-size:.7rem;font-weight:400;color:var(--muted-foreground)">Resultado estruturado</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 níveis de uso -->
+    <div class="mt-12 r">
+      <p class="eyebrow mb-6">Os 3 níveis de quem usa IA</p>
+      <div class="grid-2">
+        <div class="card card--kobold">
+          <p class="badge badge--accent mb-4">Nível 1: A maioria</p>
+          <h3 class="t-xs mb-3">Delegação passiva</h3>
+          <p class="body-sm">Envia prompt aberto, aceita o primeiro output, não questiona, não itera. Usa a IA como um Google melhorado. Resultado: produtividade marginal.</p>
+        </div>
+        <div class="card card--lime">
+          <p class="badge badge--lime mb-4">Nível 2: Usuário avançado</p>
+          <h3 class="t-xs mb-3">Colaboração ativa</h3>
+          <p class="body-sm">Escreve prompts estruturados, itera com contexto rico, valida outputs, guia a IA com perguntas estratégicas. Resultado: ganhos reais de qualidade.</p>
+        </div>
+        <div class="card" style="border-top:2px solid var(--brand-carota)">
+          <p class="badge mb-4" style="background:rgba(248,124,86,.08);border-color:rgba(248,124,86,.28);color:var(--brand-nubia)">Nível 3: Construtor</p>
+          <h3 class="t-xs mb-3">Orquestração de agentes</h3>
+          <p class="body-sm">Constrói sistemas com objetivo, memória, ferramentas e encadeamento. A IA trabalha enquanto você direciona. Resultado: escala e autonomia real.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     TIPOS DE AGENTES
+════════════════════════════════════════════ -->
+<section class="sec sec--alt" id="tipos">
+  <div class="wrap">
+
+    <div class="sec-header r">
+      <p class="eyebrow eyebrow--accent mb-3">Parte 02: Tipos</p>
+      <h2 class="t-lg">Os 4 tipos de agentes que existem</h2>
+      <p class="body-lg mt-4">Cada tipo resolve um conjunto diferente de problemas. Entender para que serve cada um evita o erro mais comum: tentar usar um agente de produção para fazer análise estratégica.</p>
+    </div>
+
+    <div class="agents-grid">
+
+      <article class="agent-card r">
+        <div class="agent-card__chip agent-card__chip--1" aria-hidden="true"><span class="material-symbols-outlined">search</span></div>
+        <div>
+          <div class="agent-card__num">Tipo 01</div>
+          <h3 class="t-sm mt-2">Agente de Pesquisa</h3>
+        </div>
+        <p class="agent-card__body">Coleta informação, analisa fontes, cruza dados e organiza conhecimento. Substitui horas de pesquisa manual. Ideal para briefings, análise de concorrência, tendências e benchmarking.</p>
+        <div class="agent-card__tags">
+          <span class="tag">Briefings</span><span class="tag">Tendências</span>
+          <span class="tag">Referências</span><span class="tag">Análise</span>
+        </div>
+      </article>
+
+      <article class="agent-card r r-d1">
+        <div class="agent-card__chip agent-card__chip--2" aria-hidden="true"><span class="material-symbols-outlined">edit</span></div>
+        <div>
+          <div class="agent-card__num">Tipo 02</div>
+          <h3 class="t-sm mt-2">Agente de Produção</h3>
+        </div>
+        <p class="agent-card__body">Gera, adapta e transforma conteúdo. Recebe um briefing ou estrutura e entrega rascunhos prontos para revisão. Pode criar variações, adaptar tom e formato para canais diferentes.</p>
+        <div class="agent-card__tags">
+          <span class="tag">Copywriting</span><span class="tag">Variações</span>
+          <span class="tag">Roteiros</span><span class="tag">Adaptação</span>
+        </div>
+      </article>
+
+      <article class="agent-card r r-d2">
+        <div class="agent-card__chip agent-card__chip--3" aria-hidden="true"><span class="material-symbols-outlined">autorenew</span></div>
+        <div>
+          <div class="agent-card__num">Tipo 03</div>
+          <h3 class="t-sm mt-2">Agente de Gestão</h3>
+        </div>
+        <p class="agent-card__body">Automatiza processos repetitivos: triagem de e-mails, respostas a clientes, geração de relatórios, organização de tarefas. Libera tempo para trabalho de alto valor.</p>
+        <div class="agent-card__tags">
+          <span class="tag">Atendimento</span><span class="tag">Relatórios</span>
+          <span class="tag">Triagem</span><span class="tag">Processos</span>
+        </div>
+      </article>
+
+      <article class="agent-card r r-d3">
+        <div class="agent-card__chip agent-card__chip--4" aria-hidden="true"><span class="material-symbols-outlined">hub</span></div>
+        <div>
+          <div class="agent-card__num">Tipo 04</div>
+          <h3 class="t-sm mt-2">Agente Orquestrador</h3>
+        </div>
+        <p class="agent-card__body">Coordena outros agentes. Recebe um objetivo complexo, decompõe em tarefas e delega para agentes especializados. É o meta-agente: a camada de direção do sistema.</p>
+        <div class="agent-card__tags">
+          <span class="tag">Multi-agente</span><span class="tag">Pipelines</span>
+          <span class="tag">Orquestração</span><span class="tag">Automação</span>
+        </div>
+      </article>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     FERRAMENTAS
+════════════════════════════════════════════ -->
+<section class="sec" id="ferramentas">
+  <div class="wrap">
+
+    <div class="sec-header r">
+      <p class="eyebrow eyebrow--accent mb-3">Parte 03: Ferramentas</p>
+      <h2 class="t-lg">Qual ferramenta usar, e quando</h2>
+      <p class="body-lg mt-4">Existem três níveis de complexidade. Os dois principais para criar agentes são o <strong style="color:var(--foreground)">Claude</strong> no nível 1, onde você não precisa de código, e o <strong style="color:var(--foreground)">Claude Code</strong> no nível 3, onde você tem controle total via terminal.</p>
+    </div>
+
+    <div class="tools-grid r">
+
+      <!-- Nível 1 — Claude -->
+      <div class="tool-card tool-card--featured tool-card--lv1">
+        <div class="tool-card__level tool-card__level--1">Nível 1 · Principal</div>
+        <div class="tool-card__name">Claude</div>
+        <div class="tool-card__tools">claude.ai · Projects · claude.com/code</div>
+        <p class="tool-card__desc">A forma mais direta de criar agentes sem código. Você escreve o system prompt no campo de instrução do Project, sobe os arquivos de contexto, e o agente está funcionando em minutos. Ideal para começar, validar a lógica e usar em produção leve sem infraestrutura.</p>
+        <ul class="tool-card__list">
+          <li>System prompt + arquivos de contexto nativos</li>
+          <li>Sem setup técnico, funciona no navegador</li>
+          <li>Projects com memória de sessão persistente</li>
+          <li>Compartilhe agentes com o time via Project</li>
+        </ul>
+      </div>
+
+      <!-- Nível 1 — Claude API -->
+      <div class="tool-card tool-card--lv1">
+        <div class="tool-card__level tool-card__level--1">Nível 1 · API</div>
+        <div class="tool-card__name">Claude API</div>
+        <div class="tool-card__tools">Anthropic SDK · REST API</div>
+        <p class="tool-card__desc">Acesso direto ao modelo via API. Ideal para integrar Claude em aplicações existentes com controle total sobre mensagens, temperature e parâmetros. Requer código mínimo para começar.</p>
+        <ul class="tool-card__list">
+          <li>SDK oficial em Python e TypeScript</li>
+          <li>Controle de parâmetros e system prompt via código</li>
+          <li>Suporte a streaming e tool calling nativo</li>
+        </ul>
+      </div>
+
+      <!-- Nível 2 — n8n / Make / Zapier -->
+      <div class="tool-card tool-card--lv2">
+        <div class="tool-card__level tool-card__level--2">Nível 2 · Automação</div>
+        <div class="tool-card__name">n8n · Make · Zapier AI</div>
+        <div class="tool-card__tools">Low-code · Fluxos visuais</div>
+        <p class="tool-card__desc">Conecta agentes Claude a outros sistemas com gatilhos e condições visuais. Integra com formulários, e-mail, planilhas, Notion, WhatsApp sem escrever código do zero.</p>
+      </div>
+
+      <!-- Nível 2 — Flowise -->
+      <div class="tool-card tool-card--lv2">
+        <div class="tool-card__level tool-card__level--2">Nível 2 · Visual</div>
+        <div class="tool-card__name">Flowise</div>
+        <div class="tool-card__tools">No-code · Interface drag-and-drop</div>
+        <p class="tool-card__desc">Plataforma visual para construir fluxos de agentes com LLMs. Cria pipelines de RAG, memória e tool calling arrastando blocos. Ideal para prototipar agentes com lógica complexa sem código.</p>
+      </div>
+
+      <!-- Nível 3 — Claude Code -->
+      <div class="tool-card tool-card--featured tool-card--lv3">
+        <div class="tool-card__level tool-card__level--3">Nível 3 · Principal</div>
+        <div class="tool-card__name">Claude Code</div>
+        <div class="tool-card__tools">Terminal · VS Code · JetBrains</div>
+        <p class="tool-card__desc">A interface de linha de comando da Anthropic. Instale via <code class="inline-code">npm i -g @anthropic-ai/claude-code</code> e use Claude diretamente no terminal. Lê o código, entende o contexto e age como engenheiro sênior ao lado.</p>
+        <ul class="tool-card__list">
+          <li>Acessa e edita arquivos do projeto diretamente</li>
+          <li>Tool calling, streaming e memória via API</li>
+          <li>Cria, testa e itera pipelines multi-agente</li>
+          <li>Extensões oficiais para VS Code e JetBrains</li>
+        </ul>
+      </div>
+
+      <!-- Nível 3 — LangChain -->
+      <div class="tool-card tool-card--lv3">
+        <div class="tool-card__level tool-card__level--3">Nível 3 · Framework</div>
+        <div class="tool-card__name">LangChain</div>
+        <div class="tool-card__tools">Python · TypeScript · Open source</div>
+        <p class="tool-card__desc">Framework open source para construir pipelines de LLMs com memória, RAG, ferramentas e encadeamento. Extensa biblioteca de integrações com bases de dados vetoriais e APIs externas.</p>
+        <ul class="tool-card__list">
+          <li>Suporte nativo a Claude, GPT, Gemini e outros</li>
+          <li>Chains, agents e retrievers pré-construídos</li>
+          <li>Integração com Pinecone, Chroma, FAISS</li>
+        </ul>
+      </div>
+
+
+    </div>
+
+    <div class="info-box info-box--accent mt-8 r">
+      <div class="info-box__label info-box__label--accent">Por onde começar</div>
+      <p class="body-sm" style="color:var(--foreground)">Comece no <strong>Claude Projects</strong> (Nível 1). Escreva um system prompt completo, suba seus documentos de contexto e use em situações reais por pelo menos duas semanas. Quando sentir o limite da interface, vá direto para o <strong>Claude Code</strong> (Nível 3): instale no terminal, abra seu projeto e comece a construir pipelines reais. O n8n fica para quando você precisar conectar o agente a sistemas externos sem código. Nunca pule o Nível 1; é lá que você entende o que o agente precisa saber antes de automatizar qualquer coisa.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     TUTORIAL — PASSO A PASSO
+════════════════════════════════════════════ -->
+<section class="sec sec--alt" id="tutorial">
+  <div class="wrap">
+
+    <div class="sec-header r">
+      <p class="eyebrow eyebrow--accent mb-3">Parte 04: Tutorial</p>
+      <h2 class="t-lg">Como criar seu primeiro agente, do zero</h2>
+      <p class="body-lg mt-4">Oito etapas concretas. Sem pular. Cada uma constrói a base da próxima. Se você quiser um agente que realmente funciona, não atalhe o processo.</p>
+    </div>
+
+    <div class="stepper r" id="stepper">
+
+      <!-- PASSO 1 -->
+      <div class="step active">
+        <div class="step__num" tabindex="0" aria-label="Etapa 1">1</div>
+        <div class="step__body">
+          <div class="step__title" tabindex="0" role="button" aria-expanded="true" aria-controls="sc1">
+            Defina o problema com precisão cirúrgica
+            <span class="step__title-arrow" aria-hidden="true">›</span>
+          </div>
+          <div class="step__content" id="sc1">
+            <p class="step__text">A maioria cria agentes vagos porque <strong>define objetivos vagos</strong>. "Um agente para me ajudar com marketing" não é um objetivo; é um desejo. Um objetivo de agente tem que responder a três perguntas com exatidão:</p>
+            <div class="info-box info-box--accent">
+              <div class="info-box__label info-box__label--accent">As 3 perguntas obrigatórias antes de criar</div>
+              <p class="body-sm" style="color:var(--foreground);margin-bottom:var(--sp-2)"><strong>1. Qual é o problema específico que ele resolve?</strong><br>Não "me ajudar com redes sociais". Sim: "Eu passo 4h/semana escrevendo captions para Instagram e o resultado é inconsistente."</p>
+              <p class="body-sm" style="color:var(--foreground);margin-bottom:var(--sp-2)"><strong>2. O que entra e o que sai?</strong><br>Defina o input (o que você vai fornecer) e o output esperado (o que o agente precisa entregar) antes de escrever uma linha de prompt.</p>
+              <p class="body-sm" style="color:var(--foreground)"><strong>3. Qual é o critério de sucesso?</strong><br>Como você sabe que o agente funcionou? Sem critério, todo output parece igualmente bom ou igualmente ruim.</p>
+            </div>
+            <div class="code mt-4"><span class="c">// Exemplo: do vago para o preciso</span>
+
+<span class="c">// ❌ Vago — vai gerar um agente inútil:</span>
+<span class="s">"Quero um agente para me ajudar com conteúdo"</span>
+
+<span class="c">// ✅ Preciso — vai gerar um agente útil:</span>
+<span class="k">Problema:</span>  <span class="v">"Passo 3h/semana pesquisando referências visuais para briefings de branding"</span>
+<span class="k">Input:</span>     <span class="v">"Briefing com: nome da marca, setor, público, 3 palavras-chave de personalidade"</span>
+<span class="k">Output:</span>    <span class="v">"Documento com 12 referências visuais categorizadas: Identidade, Tipografia, Cor, Layout"</span>
+<span class="k">Sucesso:</span>   <span class="v">"Consigo usar as referências direto no Figma sem nenhuma busca adicional"</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASSO 2 -->
+      <div class="step">
+        <div class="step__num" tabindex="0" aria-label="Etapa 2">2</div>
+        <div class="step__body">
+          <div class="step__title" tabindex="0" role="button" aria-expanded="false" aria-controls="sc2">
+            Mapeie o contexto: quem é esse agente
+            <span class="step__title-arrow" aria-hidden="true">›</span>
+          </div>
+          <div class="step__content" id="sc2">
+            <p class="step__text">Antes de escrever o prompt, você precisa saber com clareza <strong>quem é esse agente</strong>: qual é o papel, qual é o tom, o que ele sabe, o que ele não sabe, e como ele se comporta quando recebe inputs ambíguos.</p>
+            <p class="step__text">Pense como uma ficha de contratação de um colaborador real. Se você não sabe responder "o que esse agente faz quando recebe um briefing confuso?": você ainda não definiu o agente.</p>
+            <div class="info-box info-box--lime">
+              <div class="info-box__label info-box__label--lime">Template de mapeamento de contexto</div>
+              <p class="body-sm" style="color:var(--foreground)">
+                <strong>Papel:</strong> [Qual é a função exata deste agente?]<br>
+                <strong>Especialidade:</strong> [Em que área ele é especialista?]<br>
+                <strong>Tom:</strong> [Como ele se comunica? Direto, analítico, criativo?]<br>
+                <strong>Restrições:</strong> [O que ele nunca deve fazer?]<br>
+                <strong>Comportamento em ambiguidade:</strong> [O que ele faz quando o input é incompleto?]<br>
+                <strong>Formato padrão:</strong> [Como é o output esperado por padrão?]
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASSO 3 -->
+      <div class="step">
+        <div class="step__num" tabindex="0" aria-label="Etapa 3">3</div>
+        <div class="step__body">
+          <div class="step__title" tabindex="0" role="button" aria-expanded="false" aria-controls="sc3">
+            Escreva o System Prompt: a identidade permanente
+            <span class="step__title-arrow" aria-hidden="true">›</span>
+          </div>
+          <div class="step__content" id="sc3">
+            <p class="step__text">O System Prompt é a <strong>constituição do agente</strong>. Ele define quem o agente é antes de qualquer conversa começar. Ao contrário das mensagens normais, o system prompt persiste em todas as interações e estabelece o frame de toda resposta.</p>
+            <p class="step__text">Um system prompt profissional tem <em>6 camadas</em>. Cada uma resolve um problema diferente de comportamento:</p>
+
+            <!-- Anatomia -->
+            <div class="anatomy mt-6">
+              <div class="anatomy__layer">
+                <div class="anatomy__label" style="color:var(--brand-antar)">
+                  Identidade
+                  <span class="anatomy__sub">Quem é o agente</span>
+                </div>
+                <div class="anatomy__body">Define o papel, a especialidade e a perspectiva do agente. Isso ancora todas as outras respostas. Ex: <em style="color:var(--foreground)">"Você é um especialista em branding com 10 anos de prática em identidades visuais para startups de tecnologia."</em></div>
+              </div>
+              <div class="anatomy__layer">
+                <div class="anatomy__label" style="color:var(--brand-cloro)">
+                  Missão
+                  <span class="anatomy__sub">Para que o agente existe</span>
+                </div>
+                <div class="anatomy__body">Define o objetivo central do agente em uma frase. Sem missão, o agente tenta resolver tudo e não resolve nada bem. Ex: <em style="color:var(--foreground)">"Sua missão é transformar briefings criativos em documentos de referência visual prontos para uso em projetos de design."</em></div>
+              </div>
+              <div class="anatomy__layer">
+                <div class="anatomy__label" style="color:var(--brand-nubia)">
+                  Contexto
+                  <span class="anatomy__sub">O que o agente já sabe</span>
+                </div>
+                <div class="anatomy__body">Injete o conhecimento base: sobre sua marca, seu público, seu processo, suas preferências. Quanto mais contexto rico, menos você vai precisar repetir nas mensagens. Aqui ficam os arquivos e documentos do projeto.</div>
+              </div>
+              <div class="anatomy__layer">
+                <div class="anatomy__label" style="color:var(--brand-carota)">
+                  Regras
+                  <span class="anatomy__sub">O que ele deve e não deve fazer</span>
+                </div>
+                <div class="anatomy__body">Regras positivas (sempre faça X) e negativas (nunca faça Y). Inclua comportamento em casos ambíguos: o que o agente deve fazer quando recebe um input incompleto ou contraditório.</div>
+              </div>
+              <div class="anatomy__layer">
+                <div class="anatomy__label" style="color:var(--brand-calla)">
+                  Tom
+                  <span class="anatomy__sub">Como ele comunica</span>
+                </div>
+                <div class="anatomy__body">Define a voz: direta, analítica, criativa, técnica. Inclua exemplos de linguagem desejada e indesejada. Tom inconsistente é o sinal mais claro de um prompt mal calibrado.</div>
+              </div>
+              <div class="anatomy__layer">
+                <div class="anatomy__label" style="color:var(--brand-azzay)">
+                  Formato
+                  <span class="anatomy__sub">Como o output chega</span>
+                </div>
+                <div class="anatomy__body">Defina a estrutura do output: títulos, seções, listas, tabelas, comprimento máximo. Um formato definido elimina 80% dos ajustes pós-geração. O output deve chegar pronto para uso, não para ser reformatado.</div>
+              </div>
+            </div>
+
+            <div class="code mt-6"><span class="c">// System Prompt completo — Agente de Pesquisa de Referências Visuais</span>
+
+<span class="k">## IDENTIDADE</span>
+<span class="s">Você é um curador especialista em referências visuais e estética contemporânea,
+com domínio em branding, design editorial, motion e direção de arte digital.
+Pensa como um diretor criativo sênior que já trabalhou com marcas globais e
+estúdios independentes.</span>
+
+<span class="k">## MISSÃO</span>
+<span class="s">Transformar briefings criativos em documentos de referência visual densos,
+organizados e imediatamente utilizáveis por designers e diretores de arte.</span>
+
+<span class="k">## REGRAS DE COMPORTAMENTO</span>
+<span class="s">- Nunca sugira referências genéricas ou óbvias (nada de Behance top 10)
+- Sempre justifique cada referência com uma análise de 2 linhas
+- Se o briefing for vago ou incompleto, faça no máximo 2 perguntas antes de executar
+- Prefira referências que surpreendam e ampliem o universo estético do cliente
+- Categorize sempre: Identidade, Tipografia, Cor, Composição, Referência Cultural</span>
+
+<span class="k">## TOM</span>
+<span class="s">Direto, analítico, confiante. Sem enrolação. Fale como quem domina o assunto.
+Evite: elogios desnecessários, hedging ("talvez", "pode ser"), linguagem genérica.</span>
+
+<span class="k">## FORMATO DE OUTPUT</span>
+<span class="s">Título: [Nome do projeto]
+Universo estético: [2–3 linhas de síntese]
+
+[CATEGORIA]
+- Referência: [Nome / Origem]
+  Análise: [Por que relevante para este briefing]
+
+Repita para 12–15 referências distribuídas nas 5 categorias.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASSO 4 -->
+      <div class="step">
+        <div class="step__num" tabindex="0" aria-label="Etapa 4">4</div>
+        <div class="step__body">
+          <div class="step__title" tabindex="0" role="button" aria-expanded="false" aria-controls="sc4">
+            Defina os inputs: o template de entrada
+            <span class="step__title-arrow" aria-hidden="true">›</span>
+          </div>
+          <div class="step__content" id="sc4">
+            <p class="step__text">Um agente bom tem uma <strong>interface de entrada padronizada</strong>. Isso evita que cada vez que você use o agente você tenha que pensar em "o que eu preciso informar". Crie um template de input e use sempre ele.</p>
+            <p class="step__text">O template de input serve para três coisas: garantir que o agente receba o mínimo necessário para executar bem, reduzir fricção no uso diário, e tornar o processo ensinável para outras pessoas.</p>
+            <div class="code"><span class="c">// Template de input — Agente de Referências Visuais</span>
+
+<span class="k">BRIEFING DE PROJETO</span>
+
+<span class="k">Marca/Projeto:</span>       <span class="h">[Nome]</span>
+<span class="k">Setor/Mercado:</span>       <span class="h">[Ex: Fintech B2B, Estúdio de Tatuagem, SaaS Educacional]</span>
+<span class="k">Público-alvo:</span>        <span class="h">[Quem vai ver / usar]</span>
+<span class="k">Objetivo do projeto:</span> <span class="h">[O que precisa comunicar]</span>
+<span class="k">Palavras-chave:</span>      <span class="h">[3–5 adjetivos que definem a personalidade visual]</span>
+<span class="k">Anti-referências:</span>    <span class="h">[O que você definitivamente NÃO quer]</span>
+<span class="k">Entregáveis:</span>         <span class="h">[Ex: logo, identidade completa, post Instagram, landing page]</span>
+<span class="k">Referências já usadas:</span> <span class="h">[Para o agente não repetir]</span>
+
+<span class="c">// Instrução de uso:</span>
+<span class="s">Copie esse template. Preencha. Cole numa nova conversa com o agente.
+O agente sabe o que fazer com isso — está no system prompt.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASSO 5 -->
+      <div class="step">
+        <div class="step__num" tabindex="0" aria-label="Etapa 5">5</div>
+        <div class="step__body">
+          <div class="step__title" tabindex="0" role="button" aria-expanded="false" aria-controls="sc5">
+            Adicione memória e contexto persistente
+            <span class="step__title-arrow" aria-hidden="true">›</span>
+          </div>
+          <div class="step__content" id="sc5">
+            <p class="step__text">Memória é o que separa um agente descartável de um agente que melhora com o tempo. Existem três tipos de memória que você pode injetar num agente; cada um serve para uma coisa diferente:</p>
+            <div class="info-box info-box--accent">
+              <div class="info-box__label info-box__label--accent">Os 3 tipos de memória de um agente</div>
+              <p class="body-sm" style="color:var(--foreground);margin-bottom:var(--sp-3)"><strong>1. Memória do sistema (via arquivos)</strong>: documentos que você sobe no Project: guia de marca, portfolio, lista de clientes, preferências pessoais. O agente lê e usa como base permanente.</p>
+              <p class="body-sm" style="color:var(--foreground);margin-bottom:var(--sp-3)"><strong>2. Memória de sessão</strong>: o histórico da conversa atual. O agente "lembra" tudo que foi dito desde o início da sessão. Use isso para refinar progressivamente: cada mensagem enriquece o contexto.</p>
+              <p class="body-sm" style="color:var(--foreground)"><strong>3. Memória externa (RAG)</strong>: para sistemas mais avançados: banco de dados vetorial que o agente consulta dinamicamente. Permite escala ilimitada de contexto. Ferramentas: Pinecone, Supabase Vector, Notion AI.</p>
+            </div>
+            <div class="code mt-4"><span class="c">// O que incluir nos arquivos de contexto do seu Project</span>
+
+<span class="k">arquivo: brand_guide.md</span>
+<span class="s">→ Tom de voz, valores, o que a marca não é, exemplos de copy aprovado</span>
+
+<span class="k">arquivo: audience_profile.md</span>
+<span class="s">→ Descrição detalhada do público, dores, objeções, linguagem que ressoa</span>
+
+<span class="k">arquivo: preferences.md</span>
+<span class="s">→ Referências que você ama, formatos preferidos, regras de estilo pessoal</span>
+
+<span class="k">arquivo: past_projects.md</span>
+<span class="s">→ Projetos anteriores que servem como referência de qualidade e estilo</span>
+
+<span class="c">// Resultado: o agente já nasce sabendo quem você é.
+// Você nunca mais precisa se apresentar.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASSO 6 -->
+      <div class="step">
+        <div class="step__num" tabindex="0" aria-label="Etapa 6">6</div>
+        <div class="step__body">
+          <div class="step__title" tabindex="0" role="button" aria-expanded="false" aria-controls="sc6">
+            Teste com inputs reais, nunca com exemplos fictícios
+            <span class="step__title-arrow" aria-hidden="true">›</span>
+          </div>
+          <div class="step__content" id="sc6">
+            <p class="step__text">O erro mais caro no desenvolvimento de agentes é testar com inputs inventados. <strong>Prompts testados com dados fictícios sempre parecem funcionar bem</strong>; o problema aparece só em produção, com dados reais.</p>
+            <p class="step__text">Protocolo de teste em 3 rodadas obrigatórias:</p>
+            <div class="info-box info-box--lime">
+              <div class="info-box__label info-box__label--lime">Protocolo de 3 rodadas</div>
+              <p class="body-sm" style="color:var(--foreground);margin-bottom:var(--sp-3)"><strong>Rodada 1: Input ideal:</strong> Use um briefing real, completo, bem escrito. O agente deveria performar no máximo aqui. Se o output já falhar, o problema está no system prompt.</p>
+              <p class="body-sm" style="color:var(--foreground);margin-bottom:var(--sp-3)"><strong>Rodada 2: Input ambíguo:</strong> Use um briefing vago, com informações faltando. Observe como o agente reage: pede para clarificar? Inventa? Trava? O comportamento em ambiguidade revela falhas ocultas.</p>
+              <p class="body-sm" style="color:var(--foreground)"><strong>Rodada 3: Input do pior cliente:</strong> Simule o usuário mais descuidado possível. Input curto, sem contexto, fora do escopo. O agente deve se manter coerente ou pedir o que falta, nunca gerar lixo com confiança.</p>
+            </div>
+            <div class="code mt-4"><span class="c">// Checklist de validação de output</span>
+
+<span class="v">✓</span> O output está no formato definido no system prompt?
+<span class="v">✓</span> As informações são verificáveis (não inventadas)?
+<span class="v">✓</span> O tom está alinhado com a identidade definida?
+<span class="v">✓</span> O resultado está pronto para uso ou precisa de edição pesada?
+<span class="v">✓</span> O agente pediu clarificação quando o input foi vago?
+<span class="v">✓</span> Você conseguiu em &lt; 5min o que levaria 2h manualmente?
+
+<span class="c">// Se mais de 2 checks falharam → volte ao system prompt.
+// Não culpe o modelo. 90% dos problemas estão no prompt.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASSO 7 -->
+      <div class="step">
+        <div class="step__num" tabindex="0" aria-label="Etapa 7">7</div>
+        <div class="step__body">
+          <div class="step__title" tabindex="0" role="button" aria-expanded="false" aria-controls="sc7">
+            Itere o prompt: como diagnosticar e corrigir
+            <span class="step__title-arrow" aria-hidden="true">›</span>
+          </div>
+          <div class="step__content" id="sc7">
+            <p class="step__text">Prompt engineering é diagnóstico. Quando o agente entrega algo errado, o problema quase sempre está em uma das seis camadas do system prompt; você precisa saber qual.</p>
+            <div class="info-box info-box--orange">
+              <div class="info-box__label info-box__label--orange">Diagnóstico por sintoma</div>
+              <p class="body-sm" style="color:var(--foreground);margin-bottom:var(--sp-2)"><strong>Output genérico / sem personalidade</strong> → A camada de Identidade está vaga. Seja mais específico sobre quem é o agente.</p>
+              <p class="body-sm" style="color:var(--foreground);margin-bottom:var(--sp-2)"><strong>Output fora do escopo</strong> → A camada de Missão está aberta demais. Restrinja o objetivo com mais precisão.</p>
+              <p class="body-sm" style="color:var(--foreground);margin-bottom:var(--sp-2)"><strong>Tom inconsistente</strong> → A camada de Tom não tem exemplos. Adicione "fale como X, não como Y" com exemplos reais.</p>
+              <p class="body-sm" style="color:var(--foreground);margin-bottom:var(--sp-2)"><strong>Formato diferente a cada vez</strong> → A camada de Formato não é estruturada. Defina a saída como um template fixo com seções nomeadas.</p>
+              <p class="body-sm" style="color:var(--foreground)"><strong>Comportamento errático em inputs ambíguos</strong> → Falta uma regra explícita de comportamento em ambiguidade. Adicione: "Quando o input estiver incompleto, faça exatamente estas 2 perguntas antes de executar."</p>
+            </div>
+            <div class="code mt-4"><span class="c">// Técnica de refinamento iterativo</span>
+
+<span class="c">// Em vez de refazer o prompt do zero, use o próprio agente para melhorá-lo:</span>
+
+<span class="k">Mensagem para o agente:</span>
+<span class="s">"Analise o seguinte output que você gerou [cole o output ruim].
+Agora analise estas instruções do seu system prompt [cole a seção problemática].
+Aponte exatamente onde as instruções são insuficientes para gerar o output correto
+e sugira como reescrever aquela seção específica."</span>
+
+<span class="c">// O agente vai diagnosticar seu próprio prompt.
+// Use a sugestão como ponto de partida — não como resposta final.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASSO 8 -->
+      <div class="step">
+        <div class="step__num" tabindex="0" aria-label="Etapa 8">8</div>
+        <div class="step__body">
+          <div class="step__title" tabindex="0" role="button" aria-expanded="false" aria-controls="sc8">
+            Encadeie agentes e integre ao workflow
+            <span class="step__title-arrow" aria-hidden="true">›</span>
+          </div>
+          <div class="step__content" id="sc8">
+            <p class="step__text">Um agente isolado é poderoso. Uma cadeia de agentes é transformadora. O princípio é simples: <strong>o output de um agente vira o input do próximo</strong>. Cada agente faz uma coisa muito bem, e passa o bastão.</p>
+            <div class="code"><span class="c">// Exemplo de pipeline encadeado — Estúdio Criativo</span>
+
+<span class="k">Entrada:</span> <span class="s">Formulário de briefing preenchido pelo cliente</span>
+          <span class="h">↓</span>
+<span class="k">Agente 1 — Pesquisa:</span>
+<span class="s">Recebe o briefing → Gera documento de referências visuais + análise de mercado</span>
+          <span class="h">↓</span>
+<span class="k">Agente 2 — Estratégia:</span>
+<span class="s">Recebe pesquisa → Gera posicionamento, narrativa central e diretrizes de marca</span>
+          <span class="h">↓</span>
+<span class="k">Agente 3 — Produção:</span>
+<span class="s">Recebe estratégia → Gera copy para apresentação + textos de interface</span>
+          <span class="h">↓</span>
+<span class="k">Saída:</span> <span class="s">Documento completo de branding pronto para a reunião de apresentação</span>
+
+<span class="c">// O que levava 2 dias → 40 minutos
+// Você revisou + direcionou. Os agentes executaram.</span></div>
+            <div class="info-box info-box--accent mt-6">
+              <div class="info-box__label info-box__label--accent">3 formas de integrar ao workflow</div>
+              <p class="body-sm" style="color:var(--foreground);margin-bottom:var(--sp-2)"><strong>Manual (Nível 1):</strong> Template de input salvo como snippet. Você cola, o agente executa, você valida. Simples e funcional para uso diário.</p>
+              <p class="body-sm" style="color:var(--foreground);margin-bottom:var(--sp-2)"><strong>Semi-automático (Nível 2):</strong> Formulário (Tally, Notion Forms) → n8n processa → envia ao agente → salva output no Notion. Humano entra só para validar.</p>
+              <p class="body-sm" style="color:var(--foreground)"><strong>Automático (Nível 3):</strong> Gatilho externo (e-mail, webhook) → orquestrador recebe → delega para agentes especializados → compila resultado → envia ao destinatário. Zero interação manual.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /stepper -->
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     EXEMPLOS REAIS DE PROMPTS
+════════════════════════════════════════════ -->
+<section class="sec" id="exemplos">
+  <div class="wrap">
+
+    <div class="sec-header r">
+      <p class="eyebrow eyebrow--accent mb-3">Parte 05: Exemplos reais</p>
+      <h2 class="t-lg">Prompts completos para copiar e adaptar</h2>
+      <p class="body-lg mt-4">Três system prompts funcionais. Não são templates genéricos; são prompts testados em situações reais. Copie, adapte para o seu contexto e use como ponto de partida.</p>
+    </div>
+
+    <div class="r">
+      <div class="examples-tabs" role="tablist">
+        <button class="ex-tab active" role="tab" aria-selected="true" aria-controls="ep1" data-panel="ep1">Pesquisa Visual</button>
+        <button class="ex-tab" role="tab" aria-selected="false" aria-controls="ep2" data-panel="ep2">Produção de Copy</button>
+        <button class="ex-tab" role="tab" aria-selected="false" aria-controls="ep3" data-panel="ep3">Atendimento a Clientes</button>
+      </div>
+
+      <!-- Painel 1 -->
+      <div class="ex-panel active" id="ep1" role="tabpanel">
+        <div class="code"><span class="c">// AGENTE DE PESQUISA VISUAL — System Prompt completo</span>
+
+<span class="k">## IDENTIDADE</span>
+<span class="s">Você é um curador e diretor criativo especializado em referências visuais para
+projetos de design, branding e direção de arte. Pensa de forma analítica, com
+vocabulário técnico mas acessível. Conhece profundamente design gráfico, tipografia,
+cultura visual contemporânea, arte contemporânea e estética de marcas globais.</span>
+
+<span class="k">## MISSÃO</span>
+<span class="s">Transformar briefings criativos em documentos de referência visual densos,
+organizados e prontos para uso imediato em projetos de design.</span>
+
+<span class="k">## REGRAS</span>
+<span class="s">1. Nunca use referências genéricas ou clichês visuais
+2. Sempre justifique cada referência com análise funcional (não apenas estética)
+3. Se o briefing estiver incompleto, pergunte apenas: público-alvo e objetivo
+4. Distribua referências entre 5 categorias: Identidade, Tipografia, Cor,
+   Composição, Referência Cultural
+5. Mínimo de 12 referências, máximo de 16</span>
+
+<span class="k">## TOM</span>
+<span class="s">Direto e confiante. Fale como quem domina o assunto. Evite: "pode ser interessante",
+"talvez", elogios desnecessários ao briefing. Seja analítico e preciso.</span>
+
+<span class="k">## FORMATO DE OUTPUT</span>
+<span class="s">---
+PROJETO: [Nome]
+UNIVERSO ESTÉTICO: [Síntese em 2–3 linhas]
+---
+
+### [CATEGORIA]
+**[Nome da Referência]** — [Origem / Autoria]
+→ [Análise: por que é relevante para este projeto específico]
+
+[repetir para todas as referências]
+---
+NOTA DO CURADOR: [1 parágrafo com visão estratégica geral]
+---</span></div>
+      </div>
+
+      <!-- Painel 2 -->
+      <div class="ex-panel" id="ep2" role="tabpanel">
+        <div class="code"><span class="c">// AGENTE DE PRODUÇÃO DE COPY — System Prompt completo</span>
+
+<span class="k">## IDENTIDADE</span>
+<span class="s">Você é um copywriter estratégico especializado em marcas criativas, culturais e
+de tecnologia. Escreve com precisão cirúrgica, nunca usa linguagem corporativa,
+entende de narrativa, ritmo de texto e impacto emocional. Pensa em copy como
+design — cada palavra tem função.</span>
+
+<span class="k">## MISSÃO</span>
+<span class="s">Transformar briefings de comunicação em copy pronto para uso: headlines, body copy,
+CTAs, textos de interface, captions. Sempre em variações (mínimo 3 versões por entrega).</span>
+
+<span class="k">## CONTEXTO DE MARCA</span>
+<span class="s">[Aqui você injeta: guia de voz da marca, exemplos de copy aprovado,
+palavras que a marca usa e não usa, tom por canal]</span>
+
+<span class="k">## REGRAS</span>
+<span class="s">1. Nunca use: "inovador", "solução", "transformar", "potencializar" — linguagem de
+   consultoria vazia
+2. Sempre entregue 3 variações: direta, emocional e provocativa
+3. Indique o canal recomendado para cada versão
+4. Para cada variação, adicione uma linha de racional estratégico
+5. Se o briefing não especificar o público, pergunte antes de executar</span>
+
+<span class="k">## FORMATO DE OUTPUT</span>
+<span class="s">**[PEÇA]: [Nome da entrega]**
+
+VERSÃO 1 — DIRETA
+[Copy]
+→ Racional: [Por que funciona]
+Canal: [Onde usar]
+
+VERSÃO 2 — EMOCIONAL
+[Copy]
+→ Racional: [Por que funciona]
+Canal: [Onde usar]
+
+VERSÃO 3 — PROVOCATIVA
+[Copy]
+→ Racional: [Por que funciona]
+Canal: [Onde usar]</span></div>
+      </div>
+
+      <!-- Painel 3 -->
+      <div class="ex-panel" id="ep3" role="tabpanel">
+        <div class="code"><span class="c">// AGENTE DE ATENDIMENTO A CLIENTES — System Prompt completo</span>
+
+<span class="k">## IDENTIDADE</span>
+<span class="s">Você é o assistente de atendimento da [Nome do Estúdio/Marca]. Você representa
+a marca com excelência: é direto, atencioso, profissional e humano. Conhece
+profundamente todos os serviços, processos, preços e políticas do estúdio.
+Não é um bot genérico — faz parte do time.</span>
+
+<span class="k">## MISSÃO</span>
+<span class="s">Responder dúvidas de clientes potenciais e ativos com clareza e agilidade.
+Qualificar leads, filtrar projetos fora do escopo e encaminhar oportunidades
+reais para o time humano.</span>
+
+<span class="k">## BASE DE CONHECIMENTO</span>
+<span class="s">[Aqui você injeta: lista de serviços com descrição, preço e prazo;
+FAQ com as 20 dúvidas mais comuns; política de revisões e reembolso;
+exemplos de projetos que o estúdio aceita e recusa]</span>
+
+<span class="k">## REGRAS DE TRIAGEM</span>
+<span class="s">ENCAMINHAR AO TIME quando:
+- O projeto tem orçamento acima de R$ [valor]
+- O cliente solicitou reunião de descoberta
+- A dúvida envolve contrato, NDA ou questões jurídicas
+- A situação é sensível ou o cliente está insatisfeito
+
+RESPONDER AUTONOMAMENTE quando:
+- Dúvidas sobre serviços, preços e prazos padrão
+- Solicitações de portfólio ou cases
+- Perguntas sobre processo e metodologia
+- Primeiros contatos e qualificação inicial</span>
+
+<span class="k">## TOM</span>
+<span class="s">Profissional mas humano. Nunca robótico. Respostas concisas (máx. 4 parágrafos).
+Use o nome do cliente quando souber. Termine sempre com uma próxima ação clara.</span></div>
+      </div>
+
+    </div><!-- /tabs -->
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     BOAS PRÁTICAS E ERROS COMUNS
+════════════════════════════════════════════ -->
+<section class="sec sec--alt" id="praticas">
+  <div class="wrap">
+
+    <div class="sec-header r">
+      <p class="eyebrow eyebrow--accent mb-3">Parte 06: Comportamento</p>
+      <h2 class="t-lg">Como colaborar, não apenas delegar</h2>
+      <p class="body-lg mt-4">A qualidade do agente depende da qualidade de quem usa. Esses são os comportamentos que separam quem extrai valor real de quem acha que "IA não funciona".</p>
+    </div>
+
+    <div class="practices r">
+      <div class="practice">
+        <div class="practice__icon"><span class="material-symbols-outlined">my_location</span></div>
+        <h3 class="practice__title">Contexto é instrução</h3>
+        <p class="practice__body">Em vez de "escreva um post", diga: "escreva um post para Instagram, marca de design de interiores, público 30–45 anos profissionais urbanos, tom editorial denso, sobre a tendência wabi-sabi aplicada a pequenos apartamentos, objetivo gerar salvamentos". Contexto não é prolixidade; é precisão.</p>
+      </div>
+      <div class="practice">
+        <div class="practice__icon"><span class="material-symbols-outlined">autorenew</span></div>
+        <h3 class="practice__title">Itere com perguntas, não com reescritas</h3>
+        <p class="practice__body">Não aceite o primeiro output como final e não reescreva o prompt inteiro quando algo falhar. Pergunte: "O segundo parágrafo está genérico. Reescreva com um exemplo real e tensão narrativa no início". Cada iteração calibra o agente, ensinando onde o prompt precisa melhorar.</p>
+      </div>
+      <div class="practice">
+        <div class="practice__icon"><span class="material-symbols-outlined">verified</span></div>
+        <h3 class="practice__title">Você é o controle de qualidade</h3>
+        <p class="practice__body">Agente não é verdade: é ponto de partida inteligente. Dados factuais precisam de verificação. Referências criativas precisam de julgamento estético. Tom e voz precisam de ouvido humano. O agente executa. Você valida. Nunca inverta essa ordem.</p>
+      </div>
+      <div class="practice">
+        <div class="practice__icon"><span class="material-symbols-outlined">link</span></div>
+        <h3 class="practice__title">Encadeie, não acumule</h3>
+        <p class="practice__body">Quando um agente começa a fazer coisas demais, ele começa a fazer tudo mal. Prefira dois agentes especializados em sequência a um agente generalista. O poder está no encadeamento, não na acumulação de funções num único prompt sobrecarregado.</p>
+      </div>
+    </div>
+
+    <!-- Erros comuns -->
+    <div class="mt-12 r">
+      <p class="eyebrow mb-6">Erros mais comuns: como corrigir</p>
+      <div class="mistakes">
+        <div class="mistake">
+          <div class="mistake__icon" aria-hidden="true"><span class="material-symbols-outlined">warning</span></div>
+          <div>
+            <div class="mistake__title">Prompt vago → resultado vago</div>
+            <p class="mistake__body">Se você escrever "ajude-me com marketing", vai receber um conselho genérico de marketing. Seja específico sobre o problema, o contexto, o público e o formato de output esperado. Especificidade não é trabalho extra; é o trabalho.</p>
+          </div>
+        </div>
+        <div class="mistake">
+          <div class="mistake__icon" aria-hidden="true"><span class="material-symbols-outlined">warning</span></div>
+          <div>
+            <div class="mistake__title">Aceitar o primeiro output como final</div>
+            <p class="mistake__body">O primeiro output é uma hipótese, não uma resposta. Usuários que extraem valor real de IA são os que iteram 3, 4, 5 vezes antes de considerar algo pronto. A primeira versão serve para identificar o que ajustar, não para publicar.</p>
+          </div>
+        </div>
+        <div class="mistake">
+          <div class="mistake__icon" aria-hidden="true"><span class="material-symbols-outlined">warning</span></div>
+          <div>
+            <div class="mistake__title">Criar um agente que faz tudo</div>
+            <p class="mistake__body">Um agente que pesquisa, escreve, planeja, edita e atende clientes vai fazer todas essas coisas de forma mediana. Separe por função: um agente especializado entrega consistência. Um generalista entrega dispersão.</p>
+          </div>
+        </div>
+        <div class="mistake">
+          <div class="mistake__icon" aria-hidden="true"><span class="material-symbols-outlined">warning</span></div>
+          <div>
+            <div class="mistake__title">Testar com exemplos fictícios</div>
+            <p class="mistake__body">Inputs inventados sempre fazem o agente parecer funcionar. O problema aparece no primeiro briefing real, urgente, de um cliente real. Sempre teste com dados reais antes de confiar no agente em produção.</p>
+          </div>
+        </div>
+        <div class="mistake">
+          <div class="mistake__icon" aria-hidden="true"><span class="material-symbols-outlined">warning</span></div>
+          <div>
+            <div class="mistake__title">Não definir o comportamento em ambiguidade</div>
+            <p class="mistake__body">Se o agente não sabe o que fazer quando o input é incompleto, ele vai inventar ou paralisar. Coloque explicitamente no system prompt: "Quando o input estiver incompleto, faça exatamente estas perguntas: [lista]". Comportamento previsível é mais valioso que comportamento criativo.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     CLAUDE E CLAUDE CODE
+════════════════════════════════════════════ -->
+<section class="sec sec--alt" id="ferramentas-ia">
+  <div class="wrap">
+
+    <div class="sec-header r">
+      <p class="eyebrow eyebrow--accent mb-3">Parte 07: As ferramentas</p>
+      <h2 class="t-lg">Claude e Claude Code: o que são e como usar</h2>
+      <p class="body-lg mt-4">Este guia foi construído em cima do ecossistema da Anthropic. Se você vai criar agentes de verdade, precisa entender o que cada ferramenta faz e quando usar cada uma.</p>
+    </div>
+
+    <div class="grid-2 r">
+
+      <div class="card" style="border-top:2px solid var(--neutral-white);">
+        <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-5)">
+          <div style="width:44px;height:44px;border-radius:var(--radius-sm);background:rgba(255,255,255,.06);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.375rem;" aria-hidden="true"><span class="material-symbols-outlined">auto_awesome</span></div>
+          <div>
+            <div class="eyebrow" style="color:var(--neutral-400)">Anthropic</div>
+            <h3 class="t-sm" style="margin-top:2px">Claude</h3>
+          </div>
+        </div>
+        <p class="body-sm mb-4">Claude é o modelo de linguagem da Anthropic: o cérebro por trás de qualquer agente que você criar neste guia. É onde você escreve system prompts, testa comportamentos e itera suas instruções. O <strong style="color:var(--foreground)">Claude Projects</strong> é a interface mais direta para criar e testar agentes sem código: você configura a instrução base, sobe arquivos de contexto e tem um agente funcionando em minutos.</p>
+        <div style="display:flex;flex-direction:column;gap:var(--sp-2);">
+          <div style="display:flex;gap:var(--sp-3);align-items:flex-start">
+            <span class="material-symbols-outlined" style="color:var(--neutral-500);flex-shrink:0;font-size:.875rem;margin-top:2px">chevron_right</span>
+            <p class="body-sm"><strong style="color:var(--foreground)">Claude.ai Projects</strong>: nível 1. Interface nativa para criar e testar agentes sem código. Suporta system prompt + arquivos de contexto.</p>
+          </div>
+          <div style="display:flex;gap:var(--sp-3);align-items:flex-start">
+            <span class="material-symbols-outlined" style="color:var(--neutral-500);flex-shrink:0;font-size:.875rem;margin-top:2px">chevron_right</span>
+            <p class="body-sm"><strong style="color:var(--foreground)">Claude API</strong>: nível 3. Acesso programático completo: tool calling, streaming, memória externa, multi-agente.</p>
+          </div>
+          <div style="display:flex;gap:var(--sp-3);align-items:flex-start">
+            <span class="material-symbols-outlined" style="color:var(--neutral-500);flex-shrink:0;font-size:.875rem;margin-top:2px">chevron_right</span>
+            <p class="body-sm"><strong style="color:var(--foreground)">Modelos disponíveis</strong>: Claude Opus (mais potente), Sonnet (equilíbrio ideal), Haiku (mais rápido e barato para tarefas simples).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border-top:2px solid var(--neutral-white);">
+        <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-5)">
+          <div style="width:44px;height:44px;border-radius:var(--radius-sm);background:rgba(255,255,255,.06);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.375rem;" aria-hidden="true"><span class="material-symbols-outlined">terminal</span></div>
+          <div>
+            <div class="eyebrow" style="color:var(--neutral-400)">Anthropic · CLI</div>
+            <h3 class="t-sm" style="margin-top:2px">Claude Code</h3>
+          </div>
+        </div>
+        <p class="body-sm mb-4">Claude Code é a interface de linha de comando da Anthropic, uma ferramenta para desenvolvedores que querem usar Claude diretamente no terminal, integrado ao fluxo de código. Para criação de agentes, é especialmente poderoso porque você pode construir, testar e iterar pipelines inteiros sem sair do editor.</p>
+        <div style="display:flex;flex-direction:column;gap:var(--sp-2);">
+          <div style="display:flex;gap:var(--sp-3);align-items:flex-start">
+            <span class="material-symbols-outlined" style="color:var(--neutral-500);flex-shrink:0;font-size:.875rem;margin-top:2px">chevron_right</span>
+            <p class="body-sm"><strong style="color:var(--foreground)">No terminal</strong>: interaja com Claude dentro do seu projeto. Ele lê o código, entende o contexto e age como um engenheiro sênior ao lado.</p>
+          </div>
+          <div style="display:flex;gap:var(--sp-3);align-items:flex-start">
+            <span class="material-symbols-outlined" style="color:var(--neutral-500);flex-shrink:0;font-size:.875rem;margin-top:2px">chevron_right</span>
+            <p class="body-sm"><strong style="color:var(--foreground)">Ideal para agentes com código</strong>: se o seu agente precisa de automação real (scripts, APIs, pipelines), Claude Code acelera o desenvolvimento.</p>
+          </div>
+          <div style="display:flex;gap:var(--sp-3);align-items:flex-start">
+            <span class="material-symbols-outlined" style="color:var(--neutral-500);flex-shrink:0;font-size:.875rem;margin-top:2px">chevron_right</span>
+            <p class="body-sm"><strong style="color:var(--foreground)">Agentes no VS Code e JetBrains</strong>: extensões oficiais disponíveis. Você cria o agente e já testa no próprio ambiente de desenvolvimento.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Quando usar cada um -->
+    <div class="mt-10 r">
+      <p class="eyebrow mb-6">Quando usar cada ferramenta</p>
+      <div class="when-grid">
+        <div class="when-item">
+          <div class="when-label">Claude Projects</div>
+          <p class="mistake__body">Quer testar um agente rápido, validar um system prompt ou entregar algo para uso pessoal imediato sem automação. Começo obrigatório para qualquer agente novo.</p>
+        </div>
+        <div class="when-item">
+          <div class="when-label">n8n + Claude API</div>
+          <p class="mistake__body">O agente está validado e você quer automatizar disparos, integrar com e-mail, formulários ou Notion, e tirar o humano do loop operacional.</p>
+        </div>
+        <div class="when-item">
+          <div class="when-label">Claude Code</div>
+          <p class="mistake__body">Você vai construir um produto, sistema ou pipeline de produção com código real. Claude Code é o copiloto para escrever, revisar e iterar o código do seu agente diretamente no terminal.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     FOOTER PLACEHOLDER REMOVE ATLAS
+════════════════════════════════════════════ -->
+<section style="display:none" id="atlas">
+  <div class="wrap">
+    <div>
+
+      <!-- REMOVED -->
+      <div style="display:none">
+        <svg style="display:none" viewBox="0 0 233.784 96.7988" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Overlens">
+          <path d="M46.5576 73.7461C48.1808 73.7461 49.6852 74.0449 51.0703 74.6426C52.477 75.2189 53.711 76.0402 54.7715 77.1074C55.832 78.1533 56.6539 79.3813 57.2383 80.79C57.8443 82.1775 58.1475 83.6716 58.1475 85.2725C58.1474 86.8733 57.8443 88.3784 57.2383 89.7871C56.654 91.1743 55.8318 92.3907 54.7715 93.4365C53.7326 94.4824 52.5094 95.3047 51.1025 95.9023C49.7174 96.5 48.2237 96.7988 46.6221 96.7988C44.999 96.7988 43.4839 96.5 42.0771 95.9023C40.6704 95.3047 39.4365 94.4824 38.376 93.4365C37.3157 92.3694 36.4829 91.1421 35.877 89.7549C35.2926 88.3461 35 86.8411 35 85.2402C35 83.6394 35.2926 82.1452 35.877 80.7578C36.483 79.3704 37.3049 78.1533 38.3438 77.1074C39.4043 76.0402 40.6276 75.2189 42.0127 74.6426C43.4195 74.0449 44.9344 73.7461 46.5576 73.7461ZM189.532 73.7461C191.026 73.7461 192.357 74.0341 193.525 74.6104C194.716 75.1867 195.679 75.9229 196.415 76.8193L193.883 79.3174C193.234 78.5916 192.551 78.0573 191.837 77.7158C191.144 77.3531 190.343 77.1719 189.435 77.1719C188.309 77.1719 187.422 77.3955 186.772 77.8438C186.145 78.292 185.831 78.9223 185.831 79.7334C185.831 80.4164 186.026 80.9716 186.416 81.3984C186.806 81.8039 187.314 82.1563 187.941 82.4551C188.591 82.7326 189.294 82.9987 190.052 83.2549C190.831 83.511 191.599 83.8 192.356 84.1201C193.136 84.4403 193.839 84.856 194.467 85.3682C195.116 85.859 195.636 86.4994 196.025 87.2891C196.415 88.0788 196.609 89.0722 196.609 90.2676C196.609 92.2738 195.885 93.8642 194.435 95.0381C193.006 96.212 191.069 96.7988 188.623 96.7988C186.827 96.7988 185.301 96.4782 184.046 95.8379C182.791 95.1975 181.665 94.2585 180.669 93.0205L183.202 90.5234C183.83 91.4197 184.576 92.1245 185.441 92.6367C186.307 93.1276 187.411 93.373 188.753 93.373C190.008 93.373 191.004 93.1168 191.74 92.6045C192.498 92.0922 192.876 91.3876 192.876 90.4912C192.876 89.7442 192.682 89.1356 192.292 88.666C191.902 88.1965 191.383 87.8125 190.733 87.5137C190.106 87.1935 189.402 86.9155 188.623 86.6807C187.866 86.4246 187.097 86.1474 186.318 85.8486C185.561 85.5285 184.857 85.1337 184.208 84.6641C183.58 84.1945 183.072 83.5859 182.683 82.8389C182.293 82.0918 182.098 81.1419 182.098 79.9893C182.098 78.6659 182.423 77.5457 183.072 76.6279C183.743 75.6887 184.641 74.9734 185.767 74.4824C186.892 73.9915 188.147 73.7461 189.532 73.7461ZM69.6045 90.4209L76.127 74.0664H80.1201L70.8672 96.4785H68.2705L59.083 74.0664H63.1406L69.6045 90.4209ZM98.5049 77.4277H87.1094V83.415H97.5635V86.6494H87.1094V93.1172H98.667V96.4785H83.376V74.0664H98.5049V77.4277ZM111.031 74.0664C112.46 74.0664 113.715 74.3544 114.797 74.9307C115.879 75.4856 116.713 76.2536 117.297 77.2354C117.903 78.1958 118.206 79.2954 118.206 80.5332C118.206 81.8353 117.903 82.9672 117.297 83.9277C116.713 84.8882 115.879 85.6353 114.797 86.1689C113.894 86.6143 112.87 86.8736 111.726 86.9473L119.699 96.4785H114.992L107.221 86.9697H106.259V96.4785H102.525V74.0664H111.031ZM126.2 93.1172H136.914V96.4785H122.467V74.0664H126.2V93.1172ZM155.445 77.4277H144.05V83.415H154.504V86.6494H144.05V93.1172H155.607V96.4785H140.316V74.0664H155.445V77.4277ZM174.075 89.5312V74.0664H177.809V96.4785H175.211L163.199 81.0127V96.4785H159.466V74.0664H162.062L174.075 89.5312ZM46.5576 77.2676C45.0428 77.2676 43.7009 77.6091 42.5322 78.292C41.3851 78.9537 40.4756 79.8828 39.8047 81.0781C39.1555 82.2734 38.8311 83.6608 38.8311 85.2402C38.8311 86.4141 39.0149 87.5027 39.3828 88.5059C39.7724 89.4877 40.3028 90.3308 40.9736 91.0352C41.6661 91.7394 42.4883 92.2947 43.4404 92.7002C44.3927 93.0844 45.4322 93.2773 46.5576 93.2773C48.0942 93.2773 49.4359 92.935 50.583 92.252C51.7517 91.5689 52.6613 90.6299 53.3105 89.4346C53.9814 88.2179 54.3164 86.8197 54.3164 85.2402C54.3164 84.0663 54.122 82.9986 53.7324 82.0381C53.3645 81.0563 52.8341 80.2131 52.1416 79.5088C51.449 78.7831 50.6261 78.228 49.6738 77.8438C48.7433 77.4597 47.7045 77.2676 46.5576 77.2676ZM206.891 73.7461C208.276 73.7462 209.498 74.0559 210.559 74.6748C211.641 75.2938 212.485 76.1369 213.091 77.2041C213.697 78.25 214 79.4345 214 80.7578C214 82.0812 213.697 83.2874 213.091 84.376C212.485 85.4432 211.651 86.2863 210.591 86.9053C209.53 87.5242 208.308 87.834 206.923 87.834C205.559 87.834 204.336 87.5243 203.254 86.9053C202.193 86.2649 201.36 85.411 200.754 84.3438C200.148 83.2765 199.846 82.0811 199.846 80.7578C199.846 79.4345 200.137 78.2499 200.722 77.2041C201.328 76.1369 202.161 75.2938 203.222 74.6748C204.282 74.0558 205.505 73.7461 206.891 73.7461ZM206.891 74.7705C205.722 74.7705 204.682 75.0377 203.773 75.5713C202.886 76.1049 202.182 76.8194 201.663 77.7158C201.165 78.6123 200.917 79.6265 200.917 80.7578C200.917 81.8889 201.165 82.9133 201.663 83.8311C202.183 84.7489 202.886 85.4752 203.773 86.0088C204.682 86.5424 205.722 86.8096 206.891 86.8096C208.081 86.8095 209.12 86.5424 210.007 86.0088C210.916 85.4752 211.63 84.7489 212.149 83.8311C212.669 82.9133 212.929 81.889 212.929 80.7578C212.929 79.6265 212.669 78.6123 212.149 77.7158C211.63 76.8195 210.916 76.1049 210.007 75.5713C209.12 75.0377 208.081 74.7706 206.891 74.7705ZM207.345 76.9795C208.037 76.9795 208.6 77.1823 209.033 77.5879C209.488 77.9721 209.715 78.4739 209.715 79.0928C209.715 79.7545 209.488 80.2779 209.033 80.6621C208.644 81.0075 208.15 81.1975 207.551 81.2324L210.201 84.376H208.644L206.092 81.2383H205.786V84.376H204.553V76.9795H207.345ZM106.259 83.9277H110.836C111.983 83.9277 112.87 83.6396 113.498 83.0635C114.147 82.4658 114.473 81.6436 114.473 80.5977C114.473 79.6586 114.159 78.8688 113.531 78.2285C112.904 77.5882 112.016 77.2676 110.869 77.2676H106.259V83.9277ZM205.786 80.2139H207.279C207.647 80.2139 207.94 80.1177 208.156 79.9258C208.373 79.7337 208.481 79.4665 208.481 79.125C208.481 78.8262 208.373 78.5699 208.156 78.3564C207.94 78.143 207.647 78.0361 207.279 78.0361H205.786V80.2139ZM216.3 0C219.989 0 223.278 0.721426 226.165 2.16504C229.106 3.60863 231.485 5.45366 233.303 7.69922L227.047 13.9551C225.443 12.1373 223.759 10.8008 221.994 9.94531C220.283 9.03641 218.305 8.58205 216.06 8.58203C213.279 8.58203 211.086 9.14279 209.482 10.2656C207.932 11.3885 207.157 12.9663 207.157 14.998C207.157 16.7088 207.638 18.0987 208.601 19.168C209.563 20.1839 210.82 21.0669 212.37 21.8154C213.974 22.5105 215.712 23.1787 217.583 23.8203C219.508 24.4619 221.406 25.1834 223.277 25.9854C225.202 26.7874 226.941 27.83 228.491 29.1133C230.095 30.343 231.378 31.9475 232.341 33.9258C233.303 35.9041 233.784 38.3906 233.784 41.3848C233.784 46.4107 231.992 50.3943 228.41 53.335C224.881 56.2754 220.096 57.746 214.055 57.7461C209.617 57.7461 205.847 56.9438 202.746 55.3398C199.645 53.7358 196.864 51.3834 194.404 48.2822L200.66 42.0264C202.211 44.272 204.056 46.0361 206.194 47.3193C208.333 48.5491 211.06 49.164 214.375 49.1641C217.476 49.1641 219.936 48.5225 221.754 47.2393C223.625 45.9561 224.56 44.1918 224.561 41.9463C224.561 40.0749 224.08 38.5503 223.117 37.374C222.155 36.1979 220.871 35.2358 219.268 34.4873C217.717 33.6853 215.979 32.9895 214.055 32.4014C212.183 31.7598 210.285 31.0649 208.36 30.3164C206.489 29.5144 204.751 28.5249 203.146 27.3486C201.596 26.1724 199.339 24.6486 198.377 22.7773C197.415 20.906 196.934 18.5267 196.934 15.6396C196.934 12.3246 198.736 9.51691 200.34 7.21777C201.997 4.86545 204.216 3.07443 206.996 1.84473C209.776 0.614982 212.878 2.74179e-05 216.3 0ZM52.4521 56.9434H42.5078L38.2295 46.1162H14.1006L9.78516 56.9434H0L23.0986 0.801758H29.5146L52.4521 56.9434ZM90.8115 9.22363H72.5254V56.9434H63.3018V9.22363H45.0156V0.801758H90.8115V9.22363ZM108.066 48.5225H134.533V56.9434H98.8428V0.801758H108.066V48.5225ZM192.341 56.9434H182.396L178.118 46.1162H153.988L149.673 56.9434H139.889L162.986 0.801758H169.403L192.341 56.9434ZM17.2969 38.0967H35.0615L26.2188 15.7129L17.2969 38.0967ZM157.186 38.0967H174.95L166.107 15.7129L157.186 38.0967Z" fill="var(--fill-0, black)"/>
+        </svg>
+      </div>
+
+      <h2 class="t-xl atlas-title r r-d1">
+        Quer aprender a criar agentes ao vivo, em 2 dias?
+      </h2>
+
+      <p class="body-lg atlas-desc r r-d2">
+        No <strong style="color:var(--atlas-1)">Atlas 2</strong>, Ruan Braz (CEO da Overlens) vai construir um estúdio criativo completo com IA na sua frente — ao vivo, no Zoom. Agentes reais. Workflows reais. Resultado no fim de semana.
+      </p>
+
+      <div class="atlas-details r r-d2">
+        <div class="atlas-detail"><span aria-hidden="true">💻</span> Online no Zoom</div>
+        <div class="atlas-detail"><span aria-hidden="true">📅</span> 11 e 12 de abril</div>
+        <div class="atlas-detail"><span aria-hidden="true">⚡</span> Ao vivo com Ruan Braz</div>
+        <div class="atlas-detail"><span aria-hidden="true">🎯</span> Estúdio criativo completo com IA</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__inner">
+      <a href="#inicio" class="footer__logo" aria-label="Overlens">
+        <svg style="--fill-0:var(--neutral-white);" preserveAspectRatio="xMidYMid meet" viewBox="0 0 264 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Overlens">
+<path d="M17.1415 34C14.7474 34 12.513 33.5593 10.4381 32.6778C8.36326 31.7963 6.54377 30.5843 4.97965 29.0417C3.41553 27.4676 2.18658 25.6574 1.29279 23.6111C0.430931 21.5333 0 19.3139 0 16.9528C0 14.5917 0.430931 12.388 1.29279 10.3417C2.18658 8.29537 3.39957 6.50093 4.93177 4.95833C6.49589 3.38426 8.29942 2.17222 10.3423 1.32222C12.4172 0.440741 14.6517 0 17.0457 0C19.4398 0 21.6583 0.440741 23.7012 1.32222C25.7761 2.17222 27.5956 3.38426 29.1597 4.95833C30.7238 6.50093 31.9368 8.31111 32.7987 10.3889C33.6924 12.4352 34.1393 14.6389 34.1393 17C34.1393 19.3611 33.6924 21.5806 32.7987 23.6583C31.9368 25.7046 30.7238 27.4991 29.1597 29.0417C27.6275 30.5843 25.824 31.7963 23.7491 32.6778C21.7062 33.5593 19.5036 34 17.1415 34ZM17.0457 28.8056C19.3121 28.8056 21.2912 28.3019 22.983 27.2944C24.7067 26.287 26.0474 24.9019 27.005 23.1389C27.9946 21.3444 28.4893 19.2824 28.4893 16.9528C28.4893 15.2213 28.2021 13.6472 27.6275 12.2306C27.0848 10.7824 26.3028 9.53889 25.2813 8.5C24.2598 7.42963 23.0468 6.61111 21.6423 6.04445C20.2697 5.47778 18.7375 5.19444 17.0457 5.19444C14.8113 5.19444 12.8322 5.69815 11.1085 6.70556C9.41665 7.68148 8.07597 9.05093 7.08642 10.8139C6.1288 12.5769 5.64999 14.6231 5.64999 16.9528C5.64999 18.6843 5.92131 20.2898 6.46397 21.7694C7.03854 23.2176 7.8206 24.4611 8.81015 25.5C9.83162 26.5389 11.0446 27.3574 12.4491 27.9556C13.8536 28.5222 15.3858 28.8056 17.0457 28.8056Z" fill="var(--fill-0, black)"/>
+<path d="M226.573 34C223.924 34 221.673 33.5278 219.822 32.5833C217.97 31.6389 216.31 30.2537 214.842 28.4278L218.577 24.7444C219.502 26.0667 220.604 27.1056 221.881 27.8611C223.157 28.5852 224.785 28.9472 226.764 28.9472C228.616 28.9472 230.084 28.5694 231.17 27.8139C232.287 27.0583 232.845 26.0194 232.845 24.6972C232.845 23.5954 232.558 22.6981 231.984 22.0056C231.409 21.313 230.643 20.7463 229.685 20.3056C228.76 19.8333 227.722 19.4241 226.573 19.0778C225.456 18.7 224.323 18.2907 223.173 17.85C222.056 17.3778 221.019 16.7954 220.061 16.1028C219.135 15.4102 218.385 14.513 217.811 13.4111C217.236 12.3093 216.949 10.9083 216.949 9.20833C216.949 7.25648 217.428 5.6037 218.385 4.25C219.375 2.86482 220.7 1.81019 222.359 1.08611C224.019 0.362037 225.871 0 227.914 0C230.116 0 232.079 0.425 233.803 1.275C235.559 2.125 236.979 3.21111 238.064 4.53333L234.33 8.21667C233.372 7.1463 232.367 6.35926 231.313 5.85556C230.292 5.32037 229.111 5.05278 227.77 5.05278C226.11 5.05278 224.801 5.38333 223.844 6.04445C222.918 6.70556 222.455 7.63426 222.455 8.83056C222.455 9.83796 222.742 10.6565 223.317 11.2861C223.892 11.8843 224.642 12.4037 225.567 12.8444C226.525 13.2537 227.562 13.6472 228.68 14.025C229.829 14.4028 230.962 14.8278 232.079 15.3C233.228 15.7722 234.266 16.3861 235.192 17.1417C236.149 17.8657 236.915 18.8102 237.49 19.975C238.064 21.1398 238.352 22.6037 238.352 24.3667C238.352 27.3259 237.282 29.6713 235.144 31.4028C233.037 33.1343 230.18 34 226.573 34Z" fill="var(--fill-0, black)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M253.562 20.7778C251.551 20.7778 249.747 20.3213 248.151 19.4083C246.587 18.4639 245.358 17.2046 244.464 15.6306C243.571 14.0565 243.124 12.2935 243.124 10.3417C243.124 8.38982 243.555 6.64259 244.417 5.1C245.31 3.52593 246.539 2.28241 248.103 1.36944C249.668 0.456481 251.471 0 253.514 0C255.557 0 257.36 0.456481 258.925 1.36944C260.521 2.28241 261.766 3.52593 262.659 5.1C263.553 6.64259 264 8.38982 264 10.3417C264 12.2935 263.553 14.0722 262.659 15.6778C261.766 17.2519 260.537 18.4954 258.972 19.4083C257.408 20.3213 255.605 20.7778 253.562 20.7778ZM253.514 19.2667C255.27 19.2667 256.802 18.8731 258.111 18.0861C259.451 17.2991 260.505 16.2287 261.271 14.875C262.037 13.5213 262.42 12.0102 262.42 10.3417C262.42 8.67315 262.037 7.17778 261.271 5.85556C260.505 4.53333 259.451 3.4787 258.111 2.69167C256.802 1.90463 255.27 1.51111 253.514 1.51111C251.79 1.51111 250.258 1.90463 248.917 2.69167C247.609 3.4787 246.571 4.53333 245.805 5.85556C245.071 7.17778 244.704 8.67315 244.704 10.3417C244.704 12.0102 245.071 13.5213 245.805 14.875C246.571 16.2287 247.609 17.2991 248.917 18.0861C250.258 18.8731 251.79 19.2667 253.514 19.2667Z" fill="var(--fill-0, black)"/>
+<path d="M35.5189 0.472222L49.0693 33.5278H52.8998L66.546 0.472222H60.6566L51.0372 24.5938L41.5041 0.472222H35.5189Z" fill="var(--fill-0, black)"/>
+<path d="M71.3479 0.472222V33.5278H93.9V28.5694H76.8543V19.0306H92.272V14.2611H76.8543V5.43056H93.6606V0.472222H71.3479Z" fill="var(--fill-0, black)"/>
+<path d="M105.097 19.5028H106.516L117.977 33.5278H124.92L113.159 19.4705C114.847 19.3619 116.357 18.9791 117.689 18.3222C119.286 17.5352 120.514 16.4333 121.376 15.0167C122.27 13.6 122.717 11.9315 122.717 10.0111C122.717 8.18518 122.27 6.56389 121.376 5.14722C120.514 3.69908 119.286 2.56574 117.689 1.74722C116.093 0.897222 114.242 0.472222 112.135 0.472222H99.5904V33.5278H105.097V19.5028ZM105.097 15.0167V5.19444H111.896C113.588 5.19444 114.896 5.66667 115.822 6.61111C116.748 7.55556 117.211 8.72037 117.211 10.1056C117.211 11.6481 116.732 12.8602 115.774 13.7417C114.849 14.5917 113.54 15.0167 111.848 15.0167H105.097Z" fill="var(--fill-0, black)"/>
+<path d="M129.002 33.5278V0.472222H134.508V28.5694H150.309V33.5278H129.002Z" fill="var(--fill-0, black)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M155.327 0.472222V33.5278H177.879V28.5694H160.833V19.0306H176.251V14.2611H160.833V5.43056H177.64V0.472222H155.327Z" fill="var(--fill-0, black)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M205.116 23.282L187.4 0.472222H183.57V33.5278H189.076V10.718L206.792 33.5278H210.623V0.472222H205.116V23.282Z" fill="var(--fill-0, black)"/>
+<path d="M251.886 11.05H252.336L256.1 15.6778H258.398L254.488 11.0413C255.372 10.9899 256.1 10.7094 256.674 10.2C257.345 9.63333 257.68 8.86204 257.68 7.88611C257.68 6.97315 257.345 6.23333 256.674 5.66667C256.036 5.06852 255.206 4.76944 254.184 4.76944H250.067V15.6778H251.886V11.05ZM251.886 9.53889V6.32778H254.089C254.631 6.32778 255.062 6.48518 255.381 6.8C255.701 7.11481 255.86 7.49259 255.86 7.93333C255.86 8.43704 255.701 8.83056 255.381 9.11389C255.062 9.39722 254.631 9.53889 254.089 9.53889H251.886Z" fill="var(--fill-0, black)"/>
+</g>
+</svg>
+      </a>
+      <nav class="footer__links">
+        <a href="#hub" class="footer__link">Índice do Guia</a>
+        <a href="#fundamentos" class="footer__link">Fundamentos</a>
+        <a href="#tutorial" class="footer__link">Tutorial</a>
+        <a href="https://instagram.com/overlens" target="_blank" rel="noopener" class="footer__link footer__link--icon" aria-label="Instagram @overlens"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+        <a href="https://www.overlens.com.br" target="_blank" rel="noopener" class="footer__link">overlens.com.br ↗</a>
+      </nav>
+      <p class="footer__copy">© 2026 Overlens · Guia de Criação de Agentes de IA: do zero ao workflow funcionando.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* Terminal animation */
+(function() {
+  const lines = document.querySelectorAll('.cc-terminal .cc-line:not(#cl8)');
+  if (!lines.length) return;
+  const delays = [400, 1000, 1700, 2200, 2700, 3200, 3800];
+  lines.forEach((line, i) => {
+    setTimeout(() => line.classList.add('cc-show'), delays[i] || 400 + i * 500);
+  });
+})();
+
+/* Terminal Y/N interactivity */
+function terminalRun(choice) {
+  const body = document.querySelector('.cc-terminal__body');
+  if (!body) return;
+
+  // Disable buttons to prevent double-click
+  document.querySelectorAll('.cc-btn').forEach(b => b.disabled = true);
+
+  // Remove the hidden placeholder cl8
+  const cl8 = document.getElementById('cl8');
+  if (cl8) cl8.remove();
+
+  function addLine(html, delay) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const div = document.createElement('div');
+        div.className = 'cc-line cc-show';
+        div.innerHTML = html;
+        body.appendChild(div);
+        body.scrollTop = body.scrollHeight;
+        resolve();
+      }, delay);
+    });
+  }
+
+  if (choice === 'y') {
+    addLine('<span class="cc-prompt">$</span><span class="cc-cmd">y</span>', 120);
+    addLine('<span class="cc-amber">⚡ Iniciando agente brand-monitor...</span>', 500);
+    addLine('<span class="cc-ok">✓ Conectando ferramentas: web_search, notify</span>', 1100);
+    addLine('<span class="cc-ok">✓ Monitorando menções da marca...</span>', 1800);
+    addLine('<span class="cc-ok">✓ 3 menções encontradas — relatório salvo</span>', 2600);
+    addLine('<span class="cc-info">→ agents/brand-monitor-report.md gerado</span>', 3200);
+    setTimeout(() => {
+      const div = document.createElement('div');
+      div.className = 'cc-line cc-show';
+      div.innerHTML = '<span class="cc-prompt">$</span><span class="cc-cursor"></span>';
+      body.appendChild(div);
+      body.scrollTop = body.scrollHeight;
+    }, 3800);
+  } else {
+    addLine('<span class="cc-prompt">$</span><span class="cc-cmd">n</span>', 120);
+    addLine('<span class="cc-muted2">→ Execução cancelada.</span>', 500);
+    setTimeout(() => {
+      const div = document.createElement('div');
+      div.className = 'cc-line cc-show';
+      div.innerHTML = '<span class="cc-prompt">$</span><span class="cc-cursor"></span>';
+      body.appendChild(div);
+      body.scrollTop = body.scrollHeight;
+    }, 1100);
+  }
+}
+
+/* Mobile menu */
+const navToggle = document.getElementById('navToggle');
+const navMobile = document.getElementById('navMobile');
+const navClose  = document.getElementById('navClose');
+
+function openMenu() {
+  navMobile.classList.add('open');
+  navToggle.setAttribute('aria-expanded', 'true');
+  document.body.style.overflow = 'hidden';
+}
+function closeMenu() {
+  navMobile.classList.remove('open');
+  navToggle.setAttribute('aria-expanded', 'false');
+  document.body.style.overflow = '';
+}
+
+navToggle.addEventListener('click', openMenu);
+navClose.addEventListener('click', closeMenu);
+navMobile.querySelectorAll('.nav-mobile__close-on-click').forEach(link => {
+  link.addEventListener('click', closeMenu);
+});
+navMobile.addEventListener('click', e => { if (e.target === navMobile) closeMenu(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+
+/* NAV scroll */
+const nav = document.getElementById('nav');
+const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 40);
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
+
+/* Reveal on scroll */
+const revealEls = document.querySelectorAll('.r');
+const ro = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); ro.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -36px 0px' });
+revealEls.forEach(el => ro.observe(el));
+
+/* Stepper accordion */
+document.querySelectorAll('.step').forEach(step => {
+  const title   = step.querySelector('.step__title');
+  const content = step.querySelector('.step__content');
+  if (!title || !content) return;
+  title.addEventListener('click', () => {
+    const wasActive = step.classList.contains('active');
+    document.querySelectorAll('.step').forEach(s => {
+      s.classList.remove('active');
+      const t = s.querySelector('.step__title');
+      if (t) t.setAttribute('aria-expanded', 'false');
+    });
+    if (!wasActive) {
+      step.classList.add('active');
+      title.setAttribute('aria-expanded', 'true');
+      if (window.innerWidth < 768) setTimeout(() => step.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+    }
+  });
+  title.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); title.click(); } });
+});
+
+/* Example tabs */
+document.querySelectorAll('.ex-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const panelId = tab.dataset.panel;
+    document.querySelectorAll('.ex-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+    document.querySelectorAll('.ex-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected', 'true');
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.add('active');
+  });
+});
+
+/* Smooth anchor scroll */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  });
+});
+</script>
+
+</body>
+</html>
