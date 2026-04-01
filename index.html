@@ -110,7 +110,7 @@
       --sp-32: 8rem;
 
       /* Container */
-      --max-w: 72rem;
+      --max-w: 90rem;
       --px: clamp(1rem, 4vw, 3rem);
 
       /* Transição */
@@ -158,15 +158,15 @@
     h1,h2,h3,h4 { font-family: var(--font-heading); line-height: 1.08; letter-spacing: -.03em; }
 
     /* Outfit SEMPRE maiúscula — regra global */
-    .t-xl  { font-size: clamp(2.75rem,7.5vw,5.5rem); font-weight: 400; text-transform: uppercase; letter-spacing: .02em; }
+    .t-xl  { font-size: clamp(2.25rem,6vw,4.25rem); font-weight: 400; text-transform: uppercase; letter-spacing: .02em; }
     .t-lg  { font-size: clamp(1.875rem,5vw,3rem);    font-weight: 500; text-transform: uppercase; letter-spacing: .05em; line-height: 1.1; }
     .t-md  { font-size: clamp(1.25rem, 3vw,1.875rem); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
     .t-sm  { font-size: clamp(1rem,   2vw, 1.25rem);  font-weight: 500; text-transform: uppercase; letter-spacing: .03em; }
     .t-xs  { font-size: .9375rem; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
 
-    .body-lg { font-size: clamp(1rem,1.5vw,1.125rem); line-height: 1.75; color: var(--muted-foreground); }
-    .body-sm { font-size: .875rem; line-height: 1.65; color: var(--muted-foreground); }
-    .body-xs { font-size: .75rem;  line-height: 1.6;  color: var(--muted-foreground); }
+    .body-lg { font-size: clamp(1.0625rem,1.5vw,1.1875rem); line-height: 1.78; color: var(--muted-foreground); }
+    .body-sm { font-size: .9375rem; line-height: 1.7;  color: var(--muted-foreground); }
+    .body-xs { font-size: .8125rem; line-height: 1.65; color: var(--muted-foreground); }
 
     .text-accent   { color: var(--accent-primary); }
     .text-lime     { color: var(--brand-cloro); }
@@ -289,6 +289,7 @@
     }
     .nav__link {
       font-family: var(--font-outfit); font-size: .8125rem; font-weight: 500;
+      text-transform: uppercase; letter-spacing: .08em;
       color: var(--muted-foreground); padding: var(--sp-2) var(--sp-3);
       border-radius: var(--radius-xs);
       transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
@@ -457,7 +458,7 @@
       font-style: normal;
     }
     .hub-card__desc {
-      font-size: .8125rem; color: var(--muted-foreground); line-height: 1.6;
+      font-size: .875rem; color: var(--muted-foreground); line-height: 1.65;
     }
     .hub-card__arrow {
       margin-top: auto; font-size: .75rem; color: var(--muted-foreground);
@@ -496,7 +497,7 @@
     .concept-card__emoji { font-size: 2rem; margin-bottom: var(--sp-5); }
     .concept-card__role  { font-family: var(--font-outfit); font-size: .6875rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; margin-bottom: var(--sp-2); }
     .concept-card ul     { display: flex; flex-direction: column; gap: var(--sp-3); margin-top: var(--sp-6); }
-    .concept-card ul li  { font-size: .875rem; color: var(--muted-foreground); line-height: 1.65; }
+    .concept-card ul li  { font-size: .9375rem; color: var(--muted-foreground); line-height: 1.7; }
     .concept-card--lit ul li { color: var(--foreground); }
 
     /* ─────────────────────────────────────────────
@@ -542,7 +543,7 @@
     .agent-card__chip--3 { background: rgba(248,124,86,.10); }
     .agent-card__chip--4 { background: rgba(119,197,213,.10); }
     .agent-card__num     { font-family: var(--font-outfit); font-size: .6875rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted-foreground); }
-    .agent-card__body    { font-size: .875rem; color: var(--muted-foreground); line-height: 1.7; }
+    .agent-card__body    { font-size: .9375rem; color: var(--muted-foreground); line-height: 1.72; }
     .agent-card__tags    { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: auto; }
 
     /* ─────────────────────────────────────────────
@@ -575,7 +576,7 @@
     .step__content { display: none; padding-top: var(--sp-5); }
     .step.active .step__content { display: block; }
 
-    .step__text { font-size: .9375rem; color: var(--muted-foreground); line-height: 1.75; margin-bottom: var(--sp-4); }
+    .step__text { font-size: 1rem; color: var(--muted-foreground); line-height: 1.78; margin-bottom: var(--sp-4); }
     .step__text strong { color: var(--foreground); }
     .step__text em     { font-style: normal; color: var(--brand-cloro); }
 
@@ -598,7 +599,7 @@
     .code {
       background: #0D0D0D; border: 1px solid var(--border);
       border-radius: var(--radius-sm); padding: var(--sp-5);
-      font-family: var(--font-mono); font-size: .8125rem; line-height: 1.75;
+      font-family: var(--font-mono); font-size: .875rem; line-height: 1.78;
       color: var(--foreground); overflow-x: auto; white-space: pre-wrap;
       word-break: break-word; margin-top: var(--sp-4);
     }
@@ -627,9 +628,9 @@
     .tool-card__level--3 { color: var(--brand-carota); }
     .tool-card__name  { font-family: var(--font-outfit); font-size: 1.125rem; font-weight: 600; color: var(--foreground); line-height: 1.2; text-transform: uppercase; letter-spacing: .04em; }
     .tool-card__tools { font-size: .75rem; color: var(--muted-foreground); letter-spacing: .02em; }
-    .tool-card__desc  { font-size: .8125rem; color: var(--muted-foreground); line-height: 1.6; margin-top: var(--sp-1); }
+    .tool-card__desc  { font-size: .875rem; color: var(--muted-foreground); line-height: 1.65; margin-top: var(--sp-1); }
     .tool-card__list  { list-style: none; padding: 0; margin: var(--sp-1) 0 0; display: flex; flex-direction: column; gap: var(--sp-1); }
-    .tool-card__list li { font-size: .8125rem; color: var(--muted-foreground); padding-left: 1.1em; position: relative; line-height: 1.5; }
+    .tool-card__list li { font-size: .875rem; color: var(--muted-foreground); padding-left: 1.1em; position: relative; line-height: 1.6; }
     .tool-card__list li::before { content: "·"; position: absolute; left: 0; color: var(--muted-foreground); }
     .inline-code { font-family: var(--font-mono); font-size: .75em; background: rgba(255,255,255,.07); border-radius: 3px; padding: .1em .35em; color: var(--brand-cloro); }
 
@@ -647,17 +648,18 @@
     .anatomy__layer:hover       { background: rgba(255,255,255,.02); }
     .anatomy__label { font-family: var(--font-outfit); font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; display: flex; flex-direction: column; gap: var(--sp-1); }
     .anatomy__sub   { font-size: .6875rem; font-weight: 400; color: var(--muted-foreground); letter-spacing: .04em; }
-    .anatomy__body  { font-size: .875rem; color: var(--muted-foreground); line-height: 1.65; }
+    .anatomy__body  { font-size: .9375rem; color: var(--muted-foreground); line-height: 1.7; }
 
     /* ─────────────────────────────────────────────
        EXEMPLOS REAIS — TABS
        ───────────────────────────────────────────── */
     .examples-tabs { display: flex; gap: var(--sp-2); flex-wrap: wrap; margin-bottom: var(--sp-6); }
     .ex-tab {
-      padding: var(--sp-2) var(--sp-5);
+      padding: var(--sp-3) var(--sp-6);
       background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius-xxs);
-      font-family: var(--font-outfit); font-size: .875rem; font-weight: 600;
+      border-radius: 999px;
+      font-family: var(--font-outfit); font-size: .8125rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .1em; white-space: nowrap;
       cursor: pointer; transition: all var(--dur) var(--ease);
     }
     .ex-tab.active, .ex-tab:hover {
@@ -673,7 +675,7 @@
     .practice  { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--sp-6); }
     .practice__icon  { width: 40px; height: 40px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: var(--sp-4); }
     .practice__title { font-family: var(--font-outfit); font-size: 1rem; font-weight: 700; margin-bottom: var(--sp-2); }
-    .practice__body  { font-size: .8125rem; color: var(--muted-foreground); line-height: 1.7; }
+    .practice__body  { font-size: .875rem; color: var(--muted-foreground); line-height: 1.72; }
 
     /* ─────────────────────────────────────────────
        ERROS COMUNS
@@ -682,7 +684,7 @@
     .mistake  { display: grid; grid-template-columns: 2rem 1fr; gap: var(--sp-4); align-items: start; padding: var(--sp-5); background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); }
     .mistake__icon { font-size: 1.25rem; padding-top: .1rem; }
     .mistake__title{ font-family: var(--font-outfit); font-size: .9375rem; font-weight: 700; margin-bottom: var(--sp-1); }
-    .mistake__body { font-size: .8125rem; color: var(--muted-foreground); line-height: 1.65; }
+    .mistake__body { font-size: .875rem; color: var(--muted-foreground); line-height: 1.7; }
 
     /* ─────────────────────────────────────────────
        QUANDO USAR — grid responsivo
@@ -832,7 +834,7 @@
       .info-box__label { margin-bottom: var(--sp-3); }
 
       /* Code blocks */
-      .code { font-size: .75rem; padding: var(--sp-4); line-height: 1.65; }
+      .code { font-size: .8125rem; padding: var(--sp-4); line-height: 1.68; }
 
       /* Ferramentas */
       .tool-card { padding: var(--sp-5); }
@@ -983,7 +985,7 @@
     h3, h4 { line-height: 1.15; }
     .t-sm   { line-height: 1.2; }
     .body-lg { line-height: 1.82; }
-    .body-sm { font-size: .875rem; line-height: 1.75; }
+    .body-sm { font-size: .9375rem; line-height: 1.75; }
 
     /* Hub cards — mais gap e respiro interno */
     .hub-card { gap: var(--sp-4); padding: var(--sp-6) var(--sp-6); }
@@ -1041,10 +1043,56 @@
     .nav__link--cta { border-radius: 999px; }
 
     /* Ex tabs — consistent tag styling */
-    .ex-tab { border-radius: var(--radius-xxs); }
+    .ex-tab { border-radius: 999px; }
 
     /* Footer breathing */
     .footer { padding-block: var(--sp-12); }
+
+    /* ─── LARGE DESKTOP — 1440px+ ─────────────── */
+    @media (min-width: 1440px) {
+      :root {
+        --max-w: 88rem;
+        --px: clamp(2rem, 4vw, 4rem);
+      }
+      .hero__inner { gap: var(--sp-16); }
+      .hub-grid { grid-template-columns: repeat(4, 1fr); }
+      .t-xl { font-size: clamp(2.5rem, 5vw, 5rem); }
+      .t-lg { font-size: clamp(2rem, 3.5vw, 3.5rem); }
+    }
+
+    /* ─── WIDE — 1920px+ ──────────────────────── */
+    @media (min-width: 1920px) {
+      :root {
+        --max-w: 112rem;
+        --px: clamp(3rem, 4vw, 5rem);
+      }
+      .hero__inner { gap: var(--sp-20); }
+      .hub-grid { grid-template-columns: repeat(4, 1fr); }
+      .agents-grid { grid-template-columns: repeat(4, 1fr); }
+      .tools-grid { grid-template-columns: repeat(3, 1fr); }
+      .t-xl { font-size: clamp(3rem, 4.5vw, 5.5rem); }
+      .t-lg { font-size: clamp(2.25rem, 3vw, 4rem); }
+      .body-lg { font-size: clamp(1.0625rem, 1.1vw, 1.25rem); }
+      .cc-terminal { max-width: 42rem; font-size: .9375rem; }
+      .anatomy__layer { grid-template-columns: 12rem 1fr; }
+    }
+
+    /* ─── ULTRAWIDE — 2560px+ ─────────────────── */
+    @media (min-width: 2560px) {
+      :root {
+        --max-w: 150rem;
+        --px: 6rem;
+      }
+      .hub-grid { grid-template-columns: repeat(7, 1fr); }
+      .t-xl { font-size: clamp(3.5rem, 4vw, 6.5rem); }
+      .t-lg { font-size: clamp(2.5rem, 2.8vw, 5rem); }
+      .body-lg { font-size: 1.25rem; }
+      .body-sm { font-size: 1rem; }
+      .hero__inner { gap: clamp(4rem, 6vw, 8rem); }
+      .cc-terminal { max-width: 48rem; font-size: 1rem; }
+      .anatomy__layer { grid-template-columns: 14rem 1fr; padding: var(--sp-6); }
+      .step { grid-template-columns: 3.5rem 1fr; }
+    }
 
   </style>
 </head>
@@ -1201,7 +1249,7 @@
 
     <div class="sec-header r">
       <p class="eyebrow eyebrow--accent mb-3">Índice do Guia</p>
-      <h2 class="t-lg">7 partes. Do zero ao workflow real.</h2>
+      <h2 class="t-lg">7 partes Do zero ao workflow real</h2>
       <p class="body-lg mt-4">Cada parte constrói sobre a anterior. Leia em ordem ou navegue direto para o que precisa agora.</p>
     </div>
 
@@ -1251,7 +1299,7 @@
         <div class="hub-card__num">Parte 06</div>
         <div class="hub-card__icon"><span class="material-symbols-outlined">psychology</span></div>
         <div class="hub-card__title">Boas Práticas</div>
-        <div class="hub-card__desc">O que separa agentes mediocres dos que realmente funcionam em produção.</div>
+        <div class="hub-card__desc">O que separa agentes medíocres dos que realmente funcionam em produção.</div>
         <div class="hub-card__arrow"><span class="material-symbols-outlined">arrow_forward</span></div>
       </a>
 
@@ -2241,7 +2289,7 @@ Use o nome do cliente quando souber. Termine sempre com uma próxima ação clar
         <a href="#fundamentos" class="footer__link">Fundamentos</a>
         <a href="#tutorial" class="footer__link">Tutorial</a>
         <a href="https://instagram.com/overlens" target="_blank" rel="noopener" class="footer__link footer__link--icon" aria-label="Instagram @overlens"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
-        <a href="https://www.overlens.com.br" target="_blank" rel="noopener" class="footer__link">overlens.com.br ↗</a>
+        <a href="https://www.overlens.com.br/atlas-2/inscricao-b" target="_blank" rel="noopener" class="footer__link">www.overlens.com.br ↗</a>
       </nav>
       <p class="footer__copy">© 2026 Overlens · Guia de Criação de Agentes de IA: do zero ao workflow funcionando.</p>
     </div>
@@ -2368,7 +2416,12 @@ document.querySelectorAll('.step').forEach(step => {
     if (!wasActive) {
       step.classList.add('active');
       title.setAttribute('aria-expanded', 'true');
-      if (window.innerWidth < 768) setTimeout(() => step.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+      requestAnimationFrame(() => {
+        const navEl = document.getElementById('nav');
+        const offset = (navEl ? navEl.offsetHeight : 64) + 16;
+        const top = step.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top, behavior: 'smooth' });
+      });
     }
   });
   title.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); title.click(); } });
