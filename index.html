@@ -807,21 +807,20 @@
       .tools-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
-    /* ─── TABLET PEQUENO — terminal compacto ─── */
+    /* ─── MOBILE — rolar fixo no fundo da tela ─── */
     @media (max-width: 700px) {
-      .hero {
-        min-height: 100svh;
-        padding-bottom: 3.5rem;
+      .hero__scroll {
+        position: fixed;
+        bottom: var(--sp-6);
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 50;
       }
-      .hero__inner {
-        padding-block: var(--sp-4) var(--sp-4);
-        gap: var(--sp-5);
+      @keyframes scroll-bounce {
+        0%,100% { transform: translateX(-50%) translateY(0); }
+        50%      { transform: translateX(-50%) translateY(7px); }
       }
-      .cc-terminal {
-        max-height: 13rem;
-        overflow: hidden;
-      }
-      .hero__scroll { display: flex; }
+      .hero__scroll.hide { opacity: 0; pointer-events: none; transition: opacity .3s; }
     }
 
     /* ─── MOBILE LANDSCAPE / TABLET PEQUENO ─── */
@@ -894,19 +893,9 @@
 
     /* ─── MOBILE PORTRAIT ───────────────────── */
     @media (max-width: 480px) {
-      /* Hero — terminal escondido, conteúdo ocupa viewport inteira */
-      .hero {
-        padding-top: 4.5rem;
-        padding-bottom: 4rem;
-        min-height: 100svh;
-        align-items: flex-start;
-      }
-      .hero__inner {
-        padding-block: var(--sp-3) var(--sp-4);
-        gap: 0;
-      }
-      .hero__visual { display: none; }
-      .hero__scroll { display: flex; }
+      /* Hero */
+      .hero { padding-top: 4.5rem; }
+      .hero__inner { padding-block: var(--sp-3) var(--sp-6); gap: var(--sp-5); }
       .hero__acts { flex-direction: column; align-items: flex-start; gap: var(--sp-3); }
       .hero__title { max-width: 100%; }
 
@@ -2467,6 +2456,21 @@ document.querySelectorAll('.ex-tab').forEach(tab => {
     if (panel) panel.classList.add('active');
   });
 });
+
+/* Rolar — esconde ao sair da hero no mobile */
+(function() {
+  const scrollEl = document.querySelector('.hero__scroll');
+  const heroEl   = document.getElementById('inicio');
+  if (!scrollEl || !heroEl) return;
+  const check = () => {
+    if (window.innerWidth > 700) { scrollEl.classList.remove('hide'); return; }
+    const bottom = heroEl.getBoundingClientRect().bottom;
+    scrollEl.classList.toggle('hide', bottom < 80);
+  };
+  window.addEventListener('scroll', check, { passive: true });
+  window.addEventListener('resize', check);
+  check();
+})();
 
 /* Smooth anchor scroll */
 document.querySelectorAll('a[href^="#"]').forEach(a => {
